@@ -1,0 +1,28 @@
+{
+  "root": "apps/moodle-e2e",
+  "sourceRoot": "apps/moodle-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/moodle-e2e/cypress.json",
+        "devServerTarget": "moodle:serve:development"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "moodle:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/moodle-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["moodle"]
+}

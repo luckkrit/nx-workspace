@@ -1,0 +1,90 @@
+{
+  "projectType": "application",
+  "root": "apps/moodle",
+  "sourceRoot": "apps/moodle/src",
+  "prefix": "nx-workspace",
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/moodle",
+        "index": "apps/moodle/src/index.html",
+        "main": "apps/moodle/src/main.ts",
+        "polyfills": "apps/moodle/src/polyfills.ts",
+        "tsConfig": "apps/moodle/tsconfig.app.json",
+        "assets": ["apps/moodle/src/favicon.ico", "apps/moodle/src/assets"],
+        "styles": ["apps/moodle/src/styles.css"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/moodle/src/environments/environment.ts",
+              "with": "apps/moodle/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "browserTarget": "moodle:build:production"
+        },
+        "development": {
+          "browserTarget": "moodle:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "browserTarget": "moodle:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/moodle/src/**/*.ts",
+          "apps/moodle/src/**/*.html"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/moodle"],
+      "options": {
+        "jestConfig": "apps/moodle/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

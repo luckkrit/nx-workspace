@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "projects": {
+    "moodle": "apps/moodle",
+    "moodle-e2e": "apps/moodle-e2e"
+  }
+}
