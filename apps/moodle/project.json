@@ -14,8 +14,11 @@
         "polyfills": "apps/moodle/src/polyfills.ts",
         "tsConfig": "apps/moodle/tsconfig.app.json",
         "assets": ["apps/moodle/src/favicon.ico", "apps/moodle/src/assets"],
-        "styles": ["apps/moodle/src/styles.css"],
-        "scripts": []
+        "styles": [
+          "node_modules/bootstrap/dist/css/bootstrap.min.css",
+          "apps/moodle/src/styles.css"
+        ],
+        "scripts": ["node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"]
       },
       "configurations": {
         "production": {
@@ -60,7 +63,11 @@
           "browserTarget": "moodle:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "options": {
+        "browserTarget": "moodle:build",
+        "proxyConfig": "apps/moodle/src/proxy.conf.json"
+      }
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -83,6 +90,39 @@
       "options": {
         "jestConfig": "apps/moodle/jest.config.js",
         "passWithNoTests": true
+      }
+    },
+    "storybook": {
+      "executor": "@nrwl/storybook:storybook",
+      "options": {
+        "uiFramework": "@storybook/angular",
+        "port": 4400,
+        "config": {
+          "configFolder": "apps/moodle/.storybook"
+        },
+        "projectBuildConfig": "moodle"
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "build-storybook": {
+      "executor": "@nrwl/storybook:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "uiFramework": "@storybook/angular",
+        "outputPath": "dist/storybook/moodle",
+        "config": {
+          "configFolder": "apps/moodle/.storybook"
+        },
+        "projectBuildConfig": "moodle"
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
       }
     }
   },
