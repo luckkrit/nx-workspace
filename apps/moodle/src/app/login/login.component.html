@@ -26,6 +26,6 @@
         </div>
         <button class="btn btn-primary" type="submit" [disabled]="!loginForm.valid">Login</button>
         Or
-        <a href="#" class="link-primary">Register User</a>
+        <a [routerLink]="['/register']" class="link-primary">Register User</a>
     </form>
 </main>

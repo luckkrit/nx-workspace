@@ -8,7 +8,6 @@ import { LoginUserStore } from '../store/login-user-store';
   selector: 'nx-workspace-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  providers: [LoginUserStore, AlertsStore]
 })
 export class LoginComponent implements OnInit {
   isShowAlert$ = this.alertsStore.isShow$

@@ -1,7 +1,7 @@
 import { ComponentStore } from "@ngrx/component-store";
 import { MoodleProviderService } from "../services/moodle-provider.service";
 import { CreateUserDto } from "../services/model/create-user-dto";
-import { EMPTY, tap } from "rxjs";
+import { EMPTY, Observable, switchMap, tap } from "rxjs";
 import { Injectable } from "@angular/core";
 
 export interface RegisterUserState {
@@ -20,17 +20,11 @@ export class RegisterUserStore extends ComponentStore<RegisterUserState> {
     super({ isSuccess: false, isLoading: false, error: "" });
   }
 
-  readonly register = this.effect(({ username, password, firstname, lastname, email }: CreateUserDto) => {
-    if (typeof username == 'undefined' || typeof password == 'undefined' || typeof firstname == 'undefined' || typeof lastname == 'undefined' || typeof email == 'undefined') {
-      return EMPTY
-    } else {
-      this.patchState({ isLoading: true, isSuccess: false, error: "" })
-      return this.moodleProviderService.registerUser(username, password, firstname, lastname, email).pipe(tap({
-        next: () => this.patchState({ isSuccess: true, isLoading: false, error: "" }),
-        error: (err => {
-          this.patchState({ isLoading: false, isSuccess: false, error: err })
-        })
-      }))
-    }
-  })
+  readonly register = this.effect((createUserDto$: Observable<CreateUserDto>) => createUserDto$.pipe(switchMap(({ username, password, firstname, lastname, email }) => {
+    this.patchState({ isLoading: true, isSuccess: false, error: "" })
+    return this.moodleProviderService.registerUser(username, password, firstname, lastname, email).pipe(tap({
+      next: () => this.patchState({ isSuccess: true, isLoading: false, error: "" }),
+      error: (error) => this.patchState({ isLoading: false, isSuccess: false, error })
+    }))
+  })))
 }

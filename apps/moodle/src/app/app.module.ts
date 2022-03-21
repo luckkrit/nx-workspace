@@ -12,10 +12,11 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { AlertsComponent } from './alerts/alerts.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { httpInterceptorProviders } from './services/moodle-ws.interceptor';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [AppComponent, LoginComponent, UserDetailComponent, RegisterComponent, CourseCategoryComponent, CourseComponent, NavbarComponent, AlertsComponent],
-  imports: [BrowserModule, HttpClientModule, ReactiveFormsModule],
+  imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, AppRoutingModule],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent],
 })
