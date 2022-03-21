@@ -1,7 +1,7 @@
-import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from "@angular/common/http";
-import {map, Observable} from "rxjs";
-import {MoodleWsQueryParameters} from "./moodle-ws-query-parameters";
-import {MoodleWsFunctions} from "./moodle-ws-functions";
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from "@angular/common/http";
+import { catchError, map, Observable, throwError } from "rxjs";
+import { MoodleWsQueryParameters } from "./moodle-ws-query-parameters";
+import { MoodleWsFunctions } from "./moodle-ws-functions";
 
 export class MoodleWsInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -21,6 +21,23 @@ export class MoodleWsInterceptor implements HttpInterceptor {
         }
       }
       return event;
+    }), catchError((err) => {
+      if (err instanceof HttpErrorResponse) {
+        if (err.error instanceof ErrorEvent) {
+          return throwError(() => err.error.error)
+        } else {
+          return throwError(() => err.status + ":" + err.statusText);
+        }
+      }
+      return throwError(() => err)
     }));
   }
 }
+/* "Barrel" of Http Interceptors */
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+
+
+/** Http interceptor providers in outside-in order */
+export const httpInterceptorProviders = [
+  { provide: HTTP_INTERCEPTORS, useClass: MoodleWsInterceptor, multi: true },
+];

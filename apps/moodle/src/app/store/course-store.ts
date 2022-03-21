@@ -1,10 +1,10 @@
-import {Injectable} from "@angular/core";
-import {Course} from "../services/model/course";
-import {ComponentStore} from "@ngrx/component-store";
-import {mergeMap, Observable, tap} from "rxjs";
-import {MoodleProviderService} from "../services/moodle-provider.service";
-import {User} from "../services/model/user";
-import {Warning} from "../services/model/warning";
+import { Injectable } from "@angular/core";
+import { Course } from "../services/model/course";
+import { ComponentStore } from "@ngrx/component-store";
+import { EMPTY, mergeMap, Observable, tap } from "rxjs";
+import { MoodleProviderService } from "../services/moodle-provider.service";
+import { User } from "../services/model/user";
+import { Warning } from "../services/model/warning";
 
 export interface CourseState {
   warnings: Warning[]
@@ -20,7 +20,7 @@ export class CourseStore extends ComponentStore<CourseState> {
   readonly error$: Observable<string> = this.select(state => state.error)
 
   constructor(private moodleProviderService: MoodleProviderService) {
-    super({courses: [], isLoading: false, error: "", warnings: []});
+    super({ courses: [], isLoading: false, error: "", warnings: [] });
   }
 
   getUser(): Observable<User> {
@@ -32,21 +32,25 @@ export class CourseStore extends ComponentStore<CourseState> {
   }
 
   readonly getCourse = this.effect((categoryId: number) => {
-    this.patchState({isLoading: true, error: '', courses: [], warnings: []})
-    return this.getToken().pipe(tap({
-      next: (token) =>
-        this.moodleProviderService.getCourseByField(token, categoryId).pipe(tap({
-          next: (courseWarning) => this.patchState({
-            courses: courseWarning.courses,
-            warnings: courseWarning.warnings,
-            isLoading: false,
-            error: ""
-          }),
-          error: (err) => this.patchState({isLoading: false, error: err, courses: [], warnings: []})
-        }))
-      , error: (err =>
-          this.patchState({isLoading: false, error: err, courses: [], warnings: []})
-      )
-    }))
+    if (typeof categoryId == 'undefined') {
+      return EMPTY
+    } else {
+      this.patchState({ isLoading: true, error: '', courses: [], warnings: [] })
+      return this.getToken().pipe(tap({
+        next: (token) =>
+          this.moodleProviderService.getCourseByField(token, categoryId).pipe(tap({
+            next: (courseWarning) => this.patchState({
+              courses: courseWarning.courses,
+              warnings: courseWarning.warnings,
+              isLoading: false,
+              error: ""
+            }),
+            error: (err) => this.patchState({ isLoading: false, error: err, courses: [], warnings: [] })
+          }))
+        , error: (err =>
+          this.patchState({ isLoading: false, error: err, courses: [], warnings: [] })
+        )
+      }))
+    }
   })
 }

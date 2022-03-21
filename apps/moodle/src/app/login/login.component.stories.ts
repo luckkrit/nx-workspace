@@ -1,4 +1,6 @@
+import { HttpClientModule } from '@angular/common/http';
 import { moduleMetadata, Story, Meta } from '@storybook/angular';
+import { AlertsComponent } from '../alerts/alerts.component';
 import { LoginComponent } from './login.component';
 
 export default {
@@ -6,7 +8,8 @@ export default {
   component: LoginComponent,
   decorators: [
     moduleMetadata({
-      imports: [],
+      declarations: [AlertsComponent],
+      imports: [HttpClientModule,],
     })
   ],
 } as Meta<LoginComponent>;

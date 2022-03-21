@@ -10,11 +10,13 @@ import { CourseCategoryComponent } from './course-category/course-category.compo
 import { CourseComponent } from './course/course.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { AlertsComponent } from './alerts/alerts.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { httpInterceptorProviders } from './services/moodle-ws.interceptor';
 
 @NgModule({
   declarations: [AppComponent, LoginComponent, UserDetailComponent, RegisterComponent, CourseCategoryComponent, CourseComponent, NavbarComponent, AlertsComponent],
-  imports: [BrowserModule, HttpClientModule],
-  providers: [],
+  imports: [BrowserModule, HttpClientModule, ReactiveFormsModule],
+  providers: [httpInterceptorProviders],
   bootstrap: [AppComponent],
 })
 export class AppModule { }
