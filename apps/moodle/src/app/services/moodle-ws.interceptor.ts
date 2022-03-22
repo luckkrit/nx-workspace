@@ -3,7 +3,9 @@ import { catchError, map, Observable, throwError } from "rxjs";
 import { MoodleWsQueryParameters } from "./moodle-ws-query-parameters";
 import { MoodleWsFunctions } from "./moodle-ws-functions";
 
+@Injectable()
 export class MoodleWsInterceptor implements HttpInterceptor {
+  constructor(private router: Router) { }
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(map((event: HttpEvent<any>) => {
       if (event instanceof HttpResponse) {
@@ -17,6 +19,11 @@ export class MoodleWsInterceptor implements HttpInterceptor {
           }
         }
         if (event.body.exception || event.body.error) {
+          if (event.body.exception) {
+            if (event.body.errorcode == "invalidtoken") {
+              this.router.navigateByUrl('/login')
+            }
+          }
           throw Error(JSON.stringify(event.body));
         }
       }
@@ -35,6 +42,8 @@ export class MoodleWsInterceptor implements HttpInterceptor {
 }
 /* "Barrel" of Http Interceptors */
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { Router } from "@angular/router";
+import { Injectable } from "@angular/core";
 
 
 /** Http interceptor providers in outside-in order */

@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from "rxjs";
-import {User} from "./model/user";
-import {LocalStorageRefService} from "./local-storage-ref.service";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from "rxjs";
+import { User } from "./model/user";
+import { LocalStorageRefService } from "./local-storage-ref.service";
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +37,18 @@ export class UserStorageService {
   public saveUser(user: User) {
     this._localStorage.setItem("user", JSON.stringify(user));
     this._userStorage$.next(user);
+  }
+
+  public saveToken(token: string) {
+
+    let data = this._localStorage.getItem("user");
+    if (data != null) {
+      const user = JSON.parse(data);
+      user.token = token;
+      this.saveUser(user)
+    } else {
+      this._userStorage$.error("User not found");
+    }
   }
 
   public clearUser() {

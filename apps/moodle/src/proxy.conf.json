@@ -1,7 +1,8 @@
 {
   "/moodle-api": {
-    "target": "http://192.168.8.102:8080",
-    "secure": false,
+    "target": "https://b7edfa9b-55aa-4f5a-a2c0-b6eb5f623418.mock.pstmn.io",
+    "secure": true,
+    "changeOrigin": true,
     "pathRewrite": {
       "^/moodle-api": ""
     }

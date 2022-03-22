@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { map, mergeMap, Observable } from 'rxjs';
+import { EMPTY, map, mergeMap, Observable, timeout } from 'rxjs';
 import { AlertsStore, AlertsType } from '../store/alerts-store';
 
 @Component({
@@ -31,6 +31,12 @@ export class AlertsComponent implements OnInit {
       [AlertsType.ALERT_SECONDARY]: AlertsType.ALERT_SECONDARY == type,
       [AlertsType.ALERT_SUCCESS]: AlertsType.ALERT_SUCCESS == type,
       [AlertsType.ALERT_WARNING]: AlertsType.ALERT_WARNING == type
-    })))))
+    })))), timeout({
+      each: 5000,
+      with: () => {
+        this.alertsStore.hideAlert()
+        return EMPTY
+      }
+    }))
   }
 }

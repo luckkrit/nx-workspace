@@ -1,7 +1,7 @@
 import { ComponentStore, tapResponse } from "@ngrx/component-store";
 import { MoodleProviderService } from "../services/moodle-provider.service";
 import { UserLoginDto } from "../services/model/user-login-dto";
-import { EMPTY, Observable, switchMap, tap } from "rxjs";
+import { catchError, concatMap, delay, EMPTY, Observable, of, switchMap, tap } from "rxjs";
 import { Injectable } from "@angular/core";
 
 export interface LoginUserState {
@@ -20,16 +20,17 @@ export class LoginUserStore extends ComponentStore<LoginUserState> {
     super({ isLoading: false, error: "", isSuccess: false });
   }
   readonly login = this.effect((userLoginDto$: Observable<UserLoginDto>) => userLoginDto$.pipe(switchMap(({ username, password }) => {
-
     this.patchState({ isLoading: true, error: "", isSuccess: false })
-    return this.moodleProviderService.login(username, password).pipe(tap({
-      next: () =>
+    return this.moodleProviderService.login(username, password).pipe(tapResponse(
+      () => {
         this.patchState({ isLoading: false, isSuccess: true, error: "" })
-      ,
-      error: (error) => {
-        this.patchState({ isLoading: false, error, isSuccess: false })
       }
-    }))
+      ,
+      (error: string) =>
+        this.patchState({ isLoading: false, error, isSuccess: false })
+
+    )
+    )
   })))
   // readonly setError = (error: string) => this.patchState({ error })
 }

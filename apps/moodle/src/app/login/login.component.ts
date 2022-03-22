@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { of } from 'rxjs';
+import { catchError, concatMap, EMPTY, from, map, of, tap } from 'rxjs';
+import { UserStorageService } from '../services/user-storage.service';
 import { AlertsStore } from '../store/alerts-store';
 import { LoginUserStore } from '../store/login-user-store';
 
@@ -15,14 +16,14 @@ export class LoginComponent implements OnInit {
     username: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required])
   })
-  constructor(private loginUserStore: LoginUserStore, private alertsStore: AlertsStore) { }
+  constructor(private loginUserStore: LoginUserStore, private alertsStore: AlertsStore, private userStorageService: UserStorageService) { }
   ngOnInit(): void {
     this.loginUserStore.isLoading$.subscribe({
       next: (isLoading) => {
         if (isLoading) {
           this.alertsStore.showAlertInfo("Loading", "Info")
         } else {
-          this.alertsStore.hideAlert()
+          // this.alertsStore.hideAlert()
         }
       }
     })
@@ -31,7 +32,16 @@ export class LoginComponent implements OnInit {
         if (error && error.length > 0) {
           this.alertsStore.showAlertDanger(error, "Error")
         } else {
-          this.alertsStore.hideAlert()
+          // this.alertsStore.hideAlert()
+        }
+      }
+    })
+    this.loginUserStore.isSuccess$.subscribe({
+      next: (isSuccess) => {
+        if (isSuccess) {
+          this.alertsStore.showAlertInfo("Login Success", "Success")
+        } else {
+          // this.alertsStore.hideAlert()
         }
       }
     })

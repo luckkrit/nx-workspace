@@ -22,6 +22,7 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     this.registerUserStore.isLoading$.subscribe({
       next: (isLoading) => {
+        console.log(isLoading)
         if (isLoading) {
           this.alertsStore.showAlertInfo("Loading", "Info")
         } else {

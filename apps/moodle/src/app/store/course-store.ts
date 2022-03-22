@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Course } from "../services/model/course";
-import { ComponentStore } from "@ngrx/component-store";
+import { ComponentStore, tapResponse } from "@ngrx/component-store";
 import { EMPTY, mergeMap, Observable, tap } from "rxjs";
 import { MoodleProviderService } from "../services/moodle-provider.service";
 import { User } from "../services/model/user";
@@ -36,21 +36,21 @@ export class CourseStore extends ComponentStore<CourseState> {
       return EMPTY
     } else {
       this.patchState({ isLoading: true, error: '', courses: [], warnings: [] })
-      return this.getToken().pipe(tap({
-        next: (token) =>
-          this.moodleProviderService.getCourseByField(token, categoryId).pipe(tap({
-            next: (courseWarning) => this.patchState({
+      return this.getToken().pipe(tapResponse(
+        (token) =>
+          this.moodleProviderService.getCourseByField(token, categoryId).pipe(tapResponse(
+            (courseWarning) => this.patchState({
               courses: courseWarning.courses,
               warnings: courseWarning.warnings,
               isLoading: false,
               error: ""
             }),
-            error: (err) => this.patchState({ isLoading: false, error: err, courses: [], warnings: [] })
-          }))
-        , error: (err =>
-          this.patchState({ isLoading: false, error: err, courses: [], warnings: [] })
+            (error: string) => this.patchState({ isLoading: false, error, courses: [], warnings: [] })
+          ))
+        , ((error: string) =>
+          this.patchState({ isLoading: false, error, courses: [], warnings: [] })
         )
-      }))
+      ))
     }
   })
 }
