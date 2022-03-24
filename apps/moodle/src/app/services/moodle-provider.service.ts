@@ -1,21 +1,34 @@
 import { Injectable } from '@angular/core';
-import { UserStorageService } from "./user-storage.service";
-import { MoodleWsService } from "./moodle-ws.service";
-import { catchError, concatMap, EMPTY, flatMap, map, mergeMap, Observable, of, Subject, tap, throwError } from "rxjs";
-import { User } from "./model/user";
-import { UserDetail } from "./model/user-detail";
-import { CourseCategories } from "./model/course-categories";
-import { GetCourseFieldType } from "./model/get-course-by-field-dto";
-import { CourseWarning } from "./model/course-warning";
-import { SelfEnrolWarning } from "./model/self-enrol-warning";
+import { UserStorageService } from './user-storage.service';
+import { MoodleWsService } from './moodle-ws.service';
+import {
+  catchError,
+  concatMap,
+  EMPTY,
+  flatMap,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  Subject,
+  tap,
+  throwError,
+} from 'rxjs';
+import { User } from './model/user';
+import { UserDetail } from './model/user-detail';
+import { CourseCategories } from './model/course-categories';
+import { GetCourseFieldType } from './model/get-course-by-field-dto';
+import { CourseWarning } from './model/course-warning';
+import { SelfEnrolWarning } from './model/self-enrol-warning';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MoodleProviderService {
-
-  constructor(private userStorageService: UserStorageService, private moodleWsService: MoodleWsService) {
-  }
+  constructor(
+    private userStorageService: UserStorageService,
+    private moodleWsService: MoodleWsService
+  ) {}
 
   getUser(): Observable<User> {
     this.userStorageService.loadUser();
@@ -23,36 +36,64 @@ export class MoodleProviderService {
   }
 
   getToken(): Observable<string> {
-    return this.getUser().pipe(map((user) => {
-      return user.token
-    }))
+    return this.getUser().pipe(
+      map((user) => {
+        return user.token;
+      })
+    );
   }
 
   saveUser(user: User) {
     this.userStorageService.saveUser(user);
   }
 
-  registerUser(username: string, password: string, firstname: string, lastname: string, email: string): Observable<User> {
-    return this.moodleWsService.registerUser({ username, password, firstname, lastname, email }).pipe(map((response) => {
-      if (typeof response.users === 'undefined' || response.users.length == 0) throw new Error("Users not create");
-      let user = response.users[0];
-      if (user && user.id) {
-        return { id: user.id, username, password, firstname, lastname, email, token: "" };
-      } else {
-        throw new Error("Users not create");
-      }
-    }));
+  registerUser(
+    username: string,
+    password: string,
+    firstname: string,
+    lastname: string,
+    email: string
+  ): Observable<User> {
+    return this.moodleWsService
+      .registerUser({ username, password, firstname, lastname, email })
+      .pipe(
+        map((response) => {
+          if (
+            typeof response.users === 'undefined' ||
+            response.users.length == 0
+          )
+            throw new Error('Users not create');
+          let user = response.users[0];
+          if (user && user.id) {
+            return {
+              id: user.id,
+              username,
+              password,
+              firstname,
+              lastname,
+              email,
+              token: '',
+            };
+          } else {
+            throw new Error('Users not create');
+          }
+        })
+      );
   }
 
   login(username: string, password: string): Observable<boolean> {
-
-    return this.moodleWsService.login({
-      username,
-      password
-    }).pipe(concatMap(response => {
-      this.userStorageService.saveToken(response.token)
-      return of(true)
-    }), catchError((error) => throwError(() => error)))
+    return this.moodleWsService
+      .login({
+        username,
+        password,
+      })
+      .pipe(
+        concatMap((response) => {
+          console.log(response);
+          this.userStorageService.saveToken(response.token);
+          return of(true);
+        })
+      );
   }
 
   getUserDetail(token: string): Observable<UserDetail> {
@@ -63,14 +104,20 @@ export class MoodleProviderService {
     return this.moodleWsService.getCourseCategories(token);
   }
 
-  getCourseByField(token: string, categoryId: number): Observable<CourseWarning> {
+  getCourseByField(
+    token: string,
+    categoryId: number
+  ): Observable<CourseWarning> {
     return this.moodleWsService.getCourseByField({
       token,
-      field: { type: GetCourseFieldType.CATEGORY, value: categoryId }
+      field: { type: GetCourseFieldType.CATEGORY, value: categoryId },
     });
   }
 
-  selfEnrolCourse(token: string, courseId: number): Observable<SelfEnrolWarning> {
+  selfEnrolCourse(
+    token: string,
+    courseId: number
+  ): Observable<SelfEnrolWarning> {
     return this.moodleWsService.selfEnrolCourse({ token, courseId });
   }
 }
