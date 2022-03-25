@@ -16,6 +16,7 @@ import { Injectable } from '@angular/core';
 export interface LoginUserState {
   isSuccess: boolean;
   isLoading: boolean;
+  isError: boolean;
   error: string;
 }
 
@@ -23,35 +24,84 @@ export interface LoginUserState {
 export class LoginUserStore extends ComponentStore<LoginUserState> {
   readonly isSuccess$ = this.select((state) => state.isSuccess);
   readonly isLoading$ = this.select((state) => state.isLoading);
+  readonly isError$ = this.select((state) => state.isError);
   readonly error$ = this.select((state) => state.error);
-  readonly status$ = this.select((state) => state, { debounce: true });
+  readonly status$ = this.select((state) => state);
 
   constructor(private moodleProviderService: MoodleProviderService) {
-    super({ isLoading: false, error: '', isSuccess: false });
+    super({
+      isLoading: false,
+      error: '',
+      isSuccess: false,
+      isError: false,
+    });
   }
+  // readonly login = this.effect((userLoginDto$: Observable<UserLoginDto>) => {
+  //   return userLoginDto$.pipe(
+  //     switchMap(({ username, password }) => {
+  //       this.patchState({
+  //         isLoading: true,
+  //         error: '',
+  //         isSuccess: false,
+  //         isError: false,
+  //       });
+  //       return this.moodleProviderService.login(username, password).pipe(
+  //         tapResponse(
+  //           (isSuccess) => {
+  //             this.patchState({
+  //               isLoading: false,
+  //               isSuccess,
+  //               isError: false,
+  //               error: '',
+  //             });
+  //           },
+  //           (error: Error) => {
+  //             this.patchState({
+  //               isLoading: false,
+  //               isError: true,
+  //               error: error.message,
+  //               isSuccess: false,
+  //             });
+  //           }
+  //         )
+  //       );
+  //     })
+  //   );
+  // });
   readonly login = this.effect((userLoginDto$: Observable<UserLoginDto>) => {
     return userLoginDto$.pipe(
       switchMap(({ username, password }) => {
-        this.patchState({ isLoading: true, error: '', isSuccess: false });
-        console.log('loading');
-        return this.moodleProviderService.login(username, password).pipe(
-          tapResponse(
-            (isSuccess) => {
-              console.log('success', isSuccess);
-              this.patchState({ isLoading: false, isSuccess, error: '' });
-            },
-            (error: string) => {
-              console.log(error.toString());
-              this.patchState({
-                isLoading: false,
-                error: error.toString(),
-                isSuccess: false,
-              });
-            }
+        this.patchState({
+          isLoading: true,
+          error: '',
+          isSuccess: false,
+          isError: false,
+        });
+        return of({ username, password }).pipe(
+          switchMap(({ username, password }) =>
+            this.moodleProviderService.login(username, password).pipe(
+              tapResponse(
+                (isSuccess) => {
+                  this.patchState({
+                    isLoading: false,
+                    isSuccess,
+                    isError: false,
+                    error: '',
+                  });
+                },
+                (error: Error) => {
+                  this.patchState({
+                    isLoading: false,
+                    isError: true,
+                    error: error.message,
+                    isSuccess: false,
+                  });
+                }
+              )
+            )
           )
         );
       })
     );
   });
-  // readonly setError = (error: string) => this.patchState({ error })
 }

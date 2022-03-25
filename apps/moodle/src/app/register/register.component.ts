@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AlertsStore } from '../store/alerts-store';
+import { Router } from '@angular/router';
+import { delay, Subject, takeUntil } from 'rxjs';
+import { AlertsType } from '../store/alerts-store';
 import { RegisterUserStore } from '../store/register-user-store';
 
 @Component({
@@ -8,8 +10,17 @@ import { RegisterUserStore } from '../store/register-user-store';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
 })
-export class RegisterComponent implements OnInit {
-  isShowAlert$ = this.alertsStore.isShow$;
+export class RegisterComponent implements OnInit, OnDestroy {
+  isLoading$ = this.registerUserStore.isLoading$;
+  isError$ = this.registerUserStore.isError$;
+  isSuccess$ = this.registerUserStore.isSuccess$;
+  error$ = this.registerUserStore.error$;
+  loadingText = 'Loading';
+  successText = 'Loading Success';
+  infoType = AlertsType.ALERT_INFO;
+  successType = AlertsType.ALERT_SUCCESS;
+  dangerType = AlertsType.ALERT_DANGER;
+  ngDestroy$ = new Subject();
   registerForm = new FormGroup({
     username: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required]),
@@ -18,30 +29,22 @@ export class RegisterComponent implements OnInit {
     email: new FormControl('', [Validators.required]),
   });
   constructor(
-    private alertsStore: AlertsStore,
-    private registerUserStore: RegisterUserStore
+    private registerUserStore: RegisterUserStore,
+    private router: Router
   ) {}
+  ngOnDestroy(): void {
+    this.ngDestroy$.next(true);
+    this.ngDestroy$.complete();
+  }
 
   ngOnInit(): void {
-    // this.registerUserStore.isLoading$.subscribe({
-    //   next: (isLoading) => {
-    //     console.log(isLoading)
-    //     if (isLoading) {
-    //       this.alertsStore.showAlertInfo("Loading", "Info")
-    //     } else {
-    //       this.alertsStore.hideAlert()
-    //     }
-    //   }
-    // })
-    // this.registerUserStore.error$.subscribe({
-    //   next: (error) => {
-    //     if (error && error.length > 0) {
-    //       this.alertsStore.showAlertDanger(error, "Error")
-    //     } else {
-    //       this.alertsStore.hideAlert()
-    //     }
-    //   }
-    // })
+    this.isSuccess$
+      .pipe(takeUntil(this.ngDestroy$), delay(5000))
+      .subscribe((isSuccess) => {
+        if (isSuccess) {
+          this.router.navigate(['/login']);
+        }
+      });
   }
   onRegister(): void {
     this.registerUserStore.register(this.registerForm.value);

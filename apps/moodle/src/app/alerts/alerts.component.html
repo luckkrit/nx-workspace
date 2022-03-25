@@ -1,14 +1,8 @@
-<div
-  *ngIf="toggleAlerts$ | async as classCondition"
-  class="alert alert-dismissible fade"
-  [ngClass]="classCondition"
-  role="alert"
->
-  <strong>{{ header$ | async }}</strong> {{ message$ | async }}
-  <button
-    type="button"
-    class="btn-close"
-    (click)="onClose()"
-    aria-label="Close"
-  ></button>
-</div>
+<ng-container *ngIf="isShow$ | async">
+  <div *ngIf="toggleAlerts$ | async as classCondition" class="alert alert-dismissible fade" [ngClass]="classCondition"
+    role="alert">
+    <strong>{{header$|async}}</strong> {{message$|async}}
+    <button type="button" class="btn-close" (click)="onClose()" aria-label="Close"></button>
+  </div>
+
+</ng-container>

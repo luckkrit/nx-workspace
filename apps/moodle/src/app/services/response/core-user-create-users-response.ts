@@ -1,5 +1,3 @@
-import {User} from "../model/user";
+import { User } from '../model/user';
 
-export interface CoreUserCreateUsersResponse {
-  users: Array<Partial<User>>
-}
+export type CoreUserCreateUsersResponse = Partial<User>[];

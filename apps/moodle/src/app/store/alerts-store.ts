@@ -1,19 +1,6 @@
-import { Content } from '@angular/compiler/src/render3/r3_ast';
 import { Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
-import {
-  catchError,
-  concatMap,
-  delay,
-  EMPTY,
-  isObservable,
-  map,
-  mergeMap,
-  Observable,
-  switchMap,
-  tap,
-  timeout,
-} from 'rxjs';
+import { concatMap, EMPTY, Observable, switchMap, timeout } from 'rxjs';
 
 export enum AlertsType {
   ALERT_PRIMARY = 'alert-primary',
@@ -47,10 +34,10 @@ export type ToggleAlertsState = {
 @Injectable()
 export class AlertsStore extends ComponentStore<AlertsState> {
   readonly type$ = this.select((state) => state.type);
-  readonly header$ = this.select((state) => state.header);
-  readonly message$ = this.select((state) => state.message);
   readonly isShow$ = this.select((state) => state.isShow);
   readonly timeOut$ = this.select((state) => state.timeOut);
+  readonly message$ = this.select((state) => state.message);
+  readonly header$ = this.select((state) => state.header);
   readonly toggleAlerts$ = this.select(
     this.isShow$,
     this.type$,
@@ -78,155 +65,35 @@ export class AlertsStore extends ComponentStore<AlertsState> {
       timeOut: 5000,
     });
   }
-
-  readonly showAlertPrimary = (message: string, header: string) =>
+  readonly hideAlert = () =>
     this.patchState({
-      type: AlertsType.ALERT_PRIMARY,
-      header,
-      message,
-      isShow: true,
-    });
-  readonly showAlertSecondary = (message: string, header: string) =>
-    this.patchState({
-      type: AlertsType.ALERT_SECONDARY,
-      header,
-      message,
-      isShow: true,
-    });
-  readonly showAlertSuccess = (message: string, header: string) =>
-    this.patchState({
-      type: AlertsType.ALERT_SUCCESS,
-      header,
-      message,
-      isShow: true,
-    });
-  readonly showAlertDanger = (message: string, header: string) =>
-    this.patchState({
-      type: AlertsType.ALERT_DANGER,
-      header,
-      message,
-      isShow: true,
-    });
-  readonly showAlertWarning = (message: string, header: string) =>
-    this.patchState({
-      type: AlertsType.ALERT_WARNING,
-      header,
-      message,
-      isShow: true,
-    });
-  readonly showAlertInfo = (message: string, header: string) =>
-    this.patchState({
-      type: AlertsType.ALERT_INFO,
-      header,
-      message,
-      isShow: true,
-    });
-  readonly showAlertLight = (message: string, header: string) =>
-    this.patchState({
+      isShow: false,
+      header: '',
+      message: '',
       type: AlertsType.ALERT_LIGHT,
-      header,
-      message,
-      isShow: true,
+      timeOut: 5000,
     });
-  readonly showAlertDark = (message: string, header: string) =>
-    this.patchState({
-      type: AlertsType.ALERT_DARK,
-      header,
-      message,
-      isShow: true,
-    });
-  readonly hideAlert = () => this.patchState({ isShow: false });
 
-  readonly closeAfter = (timeOut: number): Observable<ToggleAlertsState> =>
-    this.toggleAlerts$.pipe(
-      timeout({
-        each: timeOut,
-        with: () => {
-          this.hideAlert();
-          return EMPTY;
-        },
-      })
-    );
-
-  readonly showAlertInfoEffect = this.effect(
-    (
-      content$: Observable<{ message: string; header: string; timeOut: number }>
-    ) =>
-      content$.pipe(
-        concatMap(({ message, header, timeOut }) => {
-          this.showAlertInfo(message, header);
-          return this.closeAfter(timeOut);
-        })
-      )
-  );
-  readonly showAlertSuccessEffect = this.effect(
-    (
-      content$: Observable<{ message: string; header: string; timeOut: number }>
-    ) =>
-      content$.pipe(
-        concatMap(({ message, header, timeOut }) => {
-          this.showAlertSuccess(message, header);
-          return this.closeAfter(timeOut);
-        })
-      )
-  );
-  readonly showAlertDangerEffect = this.effect(
-    (
-      content$: Observable<{ message: string; header: string; timeOut: number }>
-    ) =>
-      content$.pipe(
-        concatMap(({ message, header, timeOut }) => {
-          this.showAlertDanger(message, header);
-          return this.closeAfter(timeOut);
-        })
-      )
-  );
-
-  readonly initAlert = this.effect(
-    (
-      content$: Observable<{
-        status$: Observable<{
-          isLoading: boolean;
-          isSuccess: boolean;
-          error: string;
-        }>;
-        header: { loading: string; success: string; error: string };
-        message: { loading: string; success: string };
-        timeOut: number;
-      }>
-    ) => {
-      return content$.pipe(
-        concatMap(({ status$, header, message, timeOut }) => {
-          console.log('before');
-          return status$.pipe(
-            concatMap(({ isLoading, isSuccess, error }) => {
-              console.log(isLoading, isSuccess, error);
-              if (isLoading) {
-                this.showAlertInfo(message.loading, header.loading);
-              } else if (isSuccess) {
-                this.showAlertSuccess(message.success, header.success);
-              } else {
-                if (error.length > 0) {
-                  this.showAlertDanger(error, header.error);
-                }
-              }
-              if (error.length == 0) {
-                return this.toggleAlerts$.pipe(
-                  timeout({
-                    each: timeOut,
-                    with: () => {
-                      this.hideAlert();
-                      return EMPTY;
-                    },
-                  })
-                );
-              } else {
-                return this.toggleAlerts$;
-              }
+  readonly showAlert = this.effect((state$: Observable<AlertsState>) =>
+    state$.pipe(
+      concatMap((state) => {
+        this.patchState(state);
+        const { timeOut } = state;
+        console.log(state);
+        if (timeOut > 0) {
+          return this.toggleAlerts$.pipe(
+            timeout({
+              each: timeOut,
+              with: () => {
+                this.hideAlert();
+                return EMPTY;
+              },
             })
           );
-        })
-      );
-    }
+        } else {
+          return EMPTY;
+        }
+      })
+    )
   );
 }

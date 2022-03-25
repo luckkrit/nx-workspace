@@ -58,14 +58,11 @@ export class MoodleProviderService {
       .registerUser({ username, password, firstname, lastname, email })
       .pipe(
         map((response) => {
-          if (
-            typeof response.users === 'undefined' ||
-            response.users.length == 0
-          )
+          if (typeof response === 'undefined' || response.length == 0)
             throw new Error('Users not create');
-          let user = response.users[0];
+          const user = response[0];
           if (user && user.id) {
-            return {
+            const saveUser = {
               id: user.id,
               username,
               password,
@@ -74,6 +71,8 @@ export class MoodleProviderService {
               email,
               token: '',
             };
+            this.userStorageService.saveUser(saveUser);
+            return saveUser;
           } else {
             throw new Error('Users not create');
           }
@@ -89,7 +88,6 @@ export class MoodleProviderService {
       })
       .pipe(
         concatMap((response) => {
-          console.log(response);
           this.userStorageService.saveToken(response.token);
           return of(true);
         })

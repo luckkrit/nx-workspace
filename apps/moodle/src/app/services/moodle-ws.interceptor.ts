@@ -36,10 +36,10 @@ export class MoodleWsInterceptor implements HttpInterceptor {
               if (event.body.errorcode == 'invalidtoken') {
                 this.router.navigateByUrl('/login');
               } else {
-                throw Error(event.body.exception);
+                throw Error(event.body.message.replace(/<[^>]*>/g, '\n'));
               }
             } else {
-              throw Error(event.body.error);
+              throw Error(event.body.error.replace(/<[^>]*>/g, '\n'));
             }
           }
         }

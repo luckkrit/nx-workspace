@@ -26,7 +26,7 @@ describe('MoodleWsService', () => {
   });
 
   it('should create user correctly', () => {
-    let responseData = {users: [{id: 1, username: "user1"}]};
+    let responseData = [{id: 1, username: "user1"}];
     let createUserDto = {
       username: "user1",
       password: "Tirk12345=",
@@ -40,9 +40,9 @@ describe('MoodleWsService', () => {
     const observer = service.registerUser(createUserDto);
     observer.subscribe({
       next: (response) => {
-        expect(response.users.length).toBeGreaterThan(0);
-        expect(response.users[0].id).toEqual(1);
-        expect(response.users[0].username).toEqual("user1");
+        expect(response.length).toBeGreaterThan(0);
+        expect(response[0].id).toEqual(1);
+        expect(response[0].username).toEqual("user1");
         expect(service.registerUser).toHaveBeenCalled();
       }
     });
@@ -51,9 +51,9 @@ describe('MoodleWsService', () => {
     let coreUserCreateUsersRequest = new CoreUserCreateUsersRequest(createUserDto)
     httpClient.post<CoreUserCreateUsersResponse>(coreUserCreateUsersRequest.url, coreUserCreateUsersRequest.formData, {params: coreUserCreateUsersRequest.queryParams}).subscribe(
       response => {
-        expect(response.users.length).toEqual(1)
-        expect(response.users[0].id).toEqual(1)
-        expect(response.users[0].username).toEqual("user1")
+        expect(response.length).toEqual(1)
+        expect(response[0].id).toEqual(1)
+        expect(response[0].username).toEqual("user1")
       }
     )
     // Test url is the same as httpClient

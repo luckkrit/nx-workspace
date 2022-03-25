@@ -1,31 +1,39 @@
-<nx-workspace-alerts *ngIf="isShowAlert$ | async"></nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isLoading$ | async) == true" [type]="infoType" [header]="'Info'"
+  [isShow]="isLoading$ | async" [message]="loadingText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isSuccess$ | async) == true" [type]="successType" [header]="'Success'"
+  [isShow]="isSuccess$ | async" [message]="successText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isError$ | async) == true" [type]="dangerType" [header]="'Error'"
+  [isShow]="isError$ | async" [timeOut]="0" [message]="error$|async">
+</nx-workspace-alerts>
 <main class="login-form">
-    <h3 class="text-center">
-        Moodle Login
-    </h3>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" id="username" class="form-control" aria-describedby="username-feedback" required
-                formControlName="username">
-            <div id="username-feedback" class="invalid-feedback">
-                <div *ngIf="loginForm.controls['username'].errors?.['required']">
-                    Username is required
-                </div>
-            </div>
+  <h3 class="text-center">Moodle Login</h3>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" id="username" class="form-control" aria-describedby="username-feedback" required
+        formControlName="username" />
+      <div id="username-feedback" class="invalid-feedback">
+        <div *ngIf="loginForm.controls['username'].errors?.['required']">
+          Username is required
         </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" id="password" class="form-control" aria-describedby="password-feedback" required
-                formControlName="password">
-            <div id="password-feedback" class="invalid-feedback">
-                <div *ngIf="loginForm.controls['password'].errors?.['required']">
-                    Username is required
-                </div>
-            </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" id="password" class="form-control" aria-describedby="password-feedback" required
+        formControlName="password" />
+      <div id="password-feedback" class="invalid-feedback">
+        <div *ngIf="loginForm.controls['password'].errors?.['required']">
+          Password is required
         </div>
-        <button class="btn btn-primary" type="submit" [disabled]="!loginForm.valid">Login</button>
-        Or
-        <a [routerLink]="['/register']" class="link-primary">Register User</a>
-    </form>
+      </div>
+    </div>
+    <button class="btn btn-primary" type="submit" [disabled]="!loginForm.valid">
+      Login
+    </button>
+    Or
+    <a [routerLink]="['/register']" class="link-primary">Register User</a>
+  </form>
 </main>

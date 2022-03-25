@@ -1,4 +1,12 @@
-<nx-workspace-alerts *ngIf="isShowAlert$ | async"></nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isLoading$ | async) == true" [type]="infoType" [header]="'Info'"
+    [isShow]="isLoading$ | async" [message]="loadingText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isSuccess$ | async) == true" [type]="successType" [header]="'Success'"
+    [isShow]="isSuccess$ | async" [message]="successText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isError$ | async) == true" [type]="dangerType" [header]="'Error'"
+    [isShow]="isError$ | async" [timeOut]="0" [message]="error$|async">
+</nx-workspace-alerts>
 <main class="register-form">
     <h3 class="text-center">
         Register User
@@ -8,31 +16,51 @@
             <label for="email" class="form-label">Email</label>
             <input type="text" id="email" class="form-control" aria-describedby="email-feedback" required
                 formControlName="email">
-            <div id="email-feedback" class="invalid-feedback"></div>
+            <div id="email-feedback" class="invalid-feedback">
+                <div *ngIf="registerForm.controls['email'].errors?.['required']">
+                    Email is required
+                </div>
+            </div>
         </div>
         <div class="mb-3">
             <label for="firstname" class="form-label">Firstname</label>
             <input type="text" id="firstname" class="form-control" aria-describedby="firstname-feedback" required
                 formControlName="firstname">
-            <div id="firstname-feedback" class="invalid-feedback"></div>
+            <div id="firstname-feedback" class="invalid-feedback">
+                <div *ngIf="registerForm.controls['firstname'].errors?.['required']">
+                    Firstname is required
+                </div>
+            </div>
         </div>
         <div class="mb-3">
             <label for="lastname" class="form-label">Lastname</label>
             <input type="text" id="lastname" class="form-control" aria-describedby="lastname-feedback" required
                 formControlName="lastname">
-            <div id="lastname-feedback" class="invalid-feedback"></div>
+            <div id="lastname-feedback" class="invalid-feedback">
+                <div *ngIf="registerForm.controls['lastname'].errors?.['required']">
+                    Lastname is required
+                </div>
+            </div>
         </div>
         <div class="mb-3">
             <label for="username" class="form-label">Username</label>
             <input type="text" id="username" class="form-control" aria-describedby="username-feedback" required
                 formControlName="username">
-            <div id="username-feedback" class="invalid-feedback"></div>
+            <div id="username-feedback" class="invalid-feedback">
+                <div *ngIf="registerForm.controls['username'].errors?.['required']">
+                    Username is required
+                </div>
+            </div>
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Password</label>
             <input type="password" id="password" class="form-control" aria-describedby="password-feedback" required
                 formControlName="password">
-            <div id="password-feedback" class="invalid-feedback"></div>
+            <div id="password-feedback" class="invalid-feedback">
+                <div *ngIf="registerForm.controls['password'].errors?.['required']">
+                    Password is required
+                </div>
+            </div>
         </div>
         <button class="btn btn-primary" type="submit" [disabled]="!registerForm.valid">Register</button>
     </form>
