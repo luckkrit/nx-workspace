@@ -1,10 +1,13 @@
 import {
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  Output,
   SimpleChanges,
 } from '@angular/core';
+import { tap } from 'rxjs';
 import { AlertsStore, AlertsType } from '../store/alerts-store';
 
 @Component({
@@ -23,11 +26,19 @@ export class AlertsComponent implements OnInit {
   isShow: boolean | null = false;
   @Input()
   type = AlertsType.ALERT_LIGHT;
+  @Output()
+  isClose = new EventEmitter<boolean>();
 
   toggleAlerts$ = this.alertsStore.toggleAlerts$;
   message$ = this.alertsStore.message$;
   header$ = this.alertsStore.header$;
-  isShow$ = this.alertsStore.isShow$;
+  isShow$ = this.alertsStore.isShow$.pipe(
+    tap((isShow) => {
+      if (isShow == false) {
+        this.isClose.emit(isShow == false);
+      }
+    })
+  );
   constructor(private alertsStore: AlertsStore) {}
   ngOnInit(): void {
     this.alertsStore.showAlert({

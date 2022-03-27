@@ -30,12 +30,12 @@ export class MoodleProviderService {
     private moodleWsService: MoodleWsService
   ) {}
 
-  getUser(): Observable<User> {
+  getUser(): Observable<Partial<User>> {
     this.userStorageService.loadUser();
     return this.userStorageService.userStorage$;
   }
 
-  getToken(): Observable<string> {
+  getToken(): Observable<string | undefined> {
     return this.getUser().pipe(
       map((user) => {
         return user.token;
@@ -43,8 +43,11 @@ export class MoodleProviderService {
     );
   }
 
-  saveUser(user: User) {
+  saveUser(user: Partial<User>) {
     this.userStorageService.saveUser(user);
+  }
+  saveToken(username: string, token: string) {
+    this.userStorageService.saveToken(username, token);
   }
 
   registerUser(
@@ -53,7 +56,7 @@ export class MoodleProviderService {
     firstname: string,
     lastname: string,
     email: string
-  ): Observable<User> {
+  ): Observable<Partial<User>> {
     return this.moodleWsService
       .registerUser({ username, password, firstname, lastname, email })
       .pipe(
@@ -65,10 +68,8 @@ export class MoodleProviderService {
             const saveUser = {
               id: user.id,
               username,
-              password,
               firstname,
               lastname,
-              email,
               token: '',
             };
             this.userStorageService.saveUser(saveUser);
@@ -88,14 +89,24 @@ export class MoodleProviderService {
       })
       .pipe(
         concatMap((response) => {
-          this.userStorageService.saveToken(response.token);
+          this.saveToken(username, response.token);
           return of(true);
         })
       );
   }
 
   getUserDetail(token: string): Observable<UserDetail> {
-    return this.moodleWsService.getUserDetail(token);
+    return this.moodleWsService.getUserDetail(token).pipe(
+      tap((userDetail) => {
+        this.userStorageService.saveUser({
+          id: userDetail.userid,
+          username: userDetail.username,
+          firstname: userDetail.firstname,
+          lastname: userDetail.lastname,
+          token,
+        });
+      })
+    );
   }
 
   getCourseCategories(token: string): Observable<Array<CourseCategories>> {

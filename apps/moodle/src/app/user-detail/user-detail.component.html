@@ -1,3 +1,15 @@
+<nx-workspace-alerts *ngIf="(isLoading$ | async) == true" [timeOut]="3000" [type]="infoType" [header]="'Info'"
+    [isShow]="isLoading$ | async" [message]="loadingText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isSuccess$ | async) == true" [timeOut]="3000" [type]="successType" [header]="'Success'"
+    [isShow]="isSuccess$ | async" [message]="successText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isError$ | async) == true" [type]="dangerType" [header]="'Error'"
+    [isShow]="isError$ | async" [timeOut]="0" [message]="error$|async">
+</nx-workspace-alerts>
+<!-- <nx-workspace-redirect *ngIf="(isSuccess$ | async) == true" [timeOut]="4000" [isRedirect]="(isSuccess$ | async)==true"
+    [redirectTo]="'/user-detail'">
+</nx-workspace-redirect> -->
 <div class="card border-light mb-3">
     <div class="card-header">User details</div>
     <div class="card-body">
@@ -5,15 +17,11 @@
         <div class="card-text">
             <dl class="row">
                 <dt class="col-sm-3">Name</dt>
-                <dd class="col-sm-9">Krit Chomaitong</dd>
+                <dd class="col-sm-9">{{name$ | async}}</dd>
             </dl>
             <dl class="row">
                 <dt class="col-sm-3">Username</dt>
-                <dd class="col-sm-9">user1</dd>
-            </dl>
-            <dl class="row">
-                <dt class="col-sm-3">Email</dt>
-                <dd class="col-sm-9">user1@user.com</dd>
+                <dd class="col-sm-9">{{username$ | async}}</dd>
             </dl>
         </div>
     </div>

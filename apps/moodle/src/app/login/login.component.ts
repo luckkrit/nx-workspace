@@ -10,14 +10,14 @@ import { Router } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
   isLoading$ = this.loginUserStore.isLoading$;
   isError$ = this.loginUserStore.isError$;
   isSuccess$ = this.loginUserStore.isSuccess$;
+  isRedirect$ = this.loginUserStore.isRedirect$;
   error$ = this.loginUserStore.error$;
-  ngDestroy$ = new Subject();
   loadingText = 'Loading';
-  successText = 'Loading Success';
+  successText = 'Login Success';
   infoType = AlertsType.ALERT_INFO;
   successType = AlertsType.ALERT_SUCCESS;
   dangerType = AlertsType.ALERT_DANGER;
@@ -25,21 +25,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     username: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required]),
   });
-  constructor(private loginUserStore: LoginUserStore, private router: Router) {}
-  ngOnDestroy(): void {
-    this.ngDestroy$.next(true);
-    this.ngDestroy$.complete();
-  }
-  ngOnInit(): void {
-    this.isSuccess$
-      .pipe(takeUntil(this.ngDestroy$), delay(5000))
-      .subscribe((isSuccess) => {
-        if (isSuccess) {
-          this.router.navigate(['/user-detail']);
-        }
-      });
-  }
+  constructor(private loginUserStore: LoginUserStore) {}
+  ngOnInit(): void {}
   onSubmit(): void {
     this.loginUserStore.login(this.loginForm.value);
+  }
+  onAlertClose(isClose: boolean): void {
+    if (isClose) {
+      this.loginUserStore.redirect(isClose);
+    }
   }
 }

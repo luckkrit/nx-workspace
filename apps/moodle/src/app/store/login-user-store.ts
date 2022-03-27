@@ -18,6 +18,7 @@ export interface LoginUserState {
   isLoading: boolean;
   isError: boolean;
   error: string;
+  isRedirect: boolean;
 }
 
 @Injectable()
@@ -27,6 +28,7 @@ export class LoginUserStore extends ComponentStore<LoginUserState> {
   readonly isError$ = this.select((state) => state.isError);
   readonly error$ = this.select((state) => state.error);
   readonly status$ = this.select((state) => state);
+  readonly isRedirect$ = this.select((state) => state.isRedirect);
 
   constructor(private moodleProviderService: MoodleProviderService) {
     super({
@@ -34,40 +36,10 @@ export class LoginUserStore extends ComponentStore<LoginUserState> {
       error: '',
       isSuccess: false,
       isError: false,
+      isRedirect: false,
     });
   }
-  // readonly login = this.effect((userLoginDto$: Observable<UserLoginDto>) => {
-  //   return userLoginDto$.pipe(
-  //     switchMap(({ username, password }) => {
-  //       this.patchState({
-  //         isLoading: true,
-  //         error: '',
-  //         isSuccess: false,
-  //         isError: false,
-  //       });
-  //       return this.moodleProviderService.login(username, password).pipe(
-  //         tapResponse(
-  //           (isSuccess) => {
-  //             this.patchState({
-  //               isLoading: false,
-  //               isSuccess,
-  //               isError: false,
-  //               error: '',
-  //             });
-  //           },
-  //           (error: Error) => {
-  //             this.patchState({
-  //               isLoading: false,
-  //               isError: true,
-  //               error: error.message,
-  //               isSuccess: false,
-  //             });
-  //           }
-  //         )
-  //       );
-  //     })
-  //   );
-  // });
+  readonly redirect = (isRedirect: boolean) => this.patchState({ isRedirect });
   readonly login = this.effect((userLoginDto$: Observable<UserLoginDto>) => {
     return userLoginDto$.pipe(
       switchMap(({ username, password }) => {
@@ -76,6 +48,7 @@ export class LoginUserStore extends ComponentStore<LoginUserState> {
           error: '',
           isSuccess: false,
           isError: false,
+          isRedirect: false,
         });
         return of({ username, password }).pipe(
           switchMap(({ username, password }) =>
@@ -87,6 +60,7 @@ export class LoginUserStore extends ComponentStore<LoginUserState> {
                     isSuccess,
                     isError: false,
                     error: '',
+                    isRedirect: false,
                   });
                 },
                 (error: Error) => {
@@ -95,6 +69,7 @@ export class LoginUserStore extends ComponentStore<LoginUserState> {
                     isError: true,
                     error: error.message,
                     isSuccess: false,
+                    isRedirect: false,
                   });
                 }
               )

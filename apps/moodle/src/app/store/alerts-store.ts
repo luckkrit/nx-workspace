@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
-import { concatMap, EMPTY, Observable, switchMap, timeout } from 'rxjs';
+import { concatMap, EMPTY, Observable, switchMap, timeout, timer } from 'rxjs';
 
 export enum AlertsType {
   ALERT_PRIMARY = 'alert-primary',
@@ -79,7 +79,6 @@ export class AlertsStore extends ComponentStore<AlertsState> {
       concatMap((state) => {
         this.patchState(state);
         const { timeOut } = state;
-        console.log(state);
         if (timeOut > 0) {
           return this.toggleAlerts$.pipe(
             timeout({

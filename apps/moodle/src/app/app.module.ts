@@ -13,9 +13,10 @@ import { AlertsComponent } from './alerts/alerts.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { httpInterceptorProviders } from './services/moodle-ws.interceptor';
 import { AppRoutingModule } from './app-routing.module';
+import { RedirectComponent } from './util/redirect/redirect.component';
 
 @NgModule({
-  declarations: [AppComponent, LoginComponent, UserDetailComponent, RegisterComponent, CourseCategoryComponent, CourseComponent, NavbarComponent, AlertsComponent],
+  declarations: [AppComponent, LoginComponent, UserDetailComponent, RegisterComponent, CourseCategoryComponent, CourseComponent, NavbarComponent, AlertsComponent, RedirectComponent],
   imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, AppRoutingModule],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent],

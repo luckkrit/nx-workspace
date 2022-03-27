@@ -1,53 +1,67 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from "rxjs";
-import { User } from "./model/user";
-import { LocalStorageRefService } from "./local-storage-ref.service";
+import { BehaviorSubject } from 'rxjs';
+import { User } from './model/user';
+import { LocalStorageRefService } from './local-storage-ref.service';
+
+export enum UserStorageKeys {
+  USER_KEY = 'user',
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserStorageService {
   private readonly _initialUser = {
     id: 0,
-    username: "",
-    password: "",
-    firstname: "",
-    lastname: "",
-    email: "",
-    token: ""
+    username: '',
+    firstname: '',
+    lastname: '',
+    token: '',
   };
-  private _userStorage$ = new BehaviorSubject<User>(this._initialUser);
+  private _userStorage$ = new BehaviorSubject<Partial<User>>(this._initialUser);
   public userStorage$ = this._userStorage$.asObservable();
   private _localStorage: Storage;
 
   constructor(private _localStorageRefService: LocalStorageRefService) {
-    this._localStorage = _localStorageRefService.localStorage;
+    this._localStorage = this._localStorageRefService.localStorage;
   }
 
   public loadUser() {
-    let data = this._localStorage.getItem("user");
+    let data = this._localStorage.getItem(UserStorageKeys.USER_KEY);
     if (data != null) {
       const user = JSON.parse(data);
       this._userStorage$.next(user);
     } else {
-      this._userStorage$.error("User not found");
+      this._userStorage$.error('User not found');
     }
   }
 
-  public saveUser(user: User) {
-    this._localStorage.setItem("user", JSON.stringify(user));
+  public saveUser(user: Partial<User>) {
+    this._localStorage.setItem(
+      UserStorageKeys.USER_KEY,
+      JSON.stringify({
+        id: user.id,
+        username: user.username,
+        token: user.token,
+        firstname: user.firstname,
+        lastname: user.lastname,
+      })
+    );
     this._userStorage$.next(user);
   }
 
-  public saveToken(token: string) {
-
-    let data = this._localStorage.getItem("user");
+  public saveToken(username: string, token: string) {
+    let data = this._localStorage.getItem(UserStorageKeys.USER_KEY);
     if (data != null) {
       const user = JSON.parse(data);
-      user.token = token;
-      this.saveUser(user)
+      if (user.username != username) {
+        this.saveUser({ username, token });
+      } else {
+        user.token = token;
+        this.saveUser(user);
+      }
     } else {
-      this._userStorage$.error("User not found");
+      this.saveUser({ username, token });
     }
   }
 

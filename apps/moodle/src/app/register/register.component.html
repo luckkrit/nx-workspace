@@ -1,12 +1,14 @@
-<nx-workspace-alerts *ngIf="(isLoading$ | async) == true" [type]="infoType" [header]="'Info'"
+<nx-workspace-alerts *ngIf="(isLoading$ | async) == true" [timeOut]="3000" [type]="infoType" [header]="'Info'"
     [isShow]="isLoading$ | async" [message]="loadingText">
 </nx-workspace-alerts>
-<nx-workspace-alerts *ngIf="(isSuccess$ | async) == true" [type]="successType" [header]="'Success'"
+<nx-workspace-alerts *ngIf="(isSuccess$ | async) == true" [timeOut]="3000" [type]="successType" [header]="'Success'"
     [isShow]="isSuccess$ | async" [message]="successText">
 </nx-workspace-alerts>
 <nx-workspace-alerts *ngIf="(isError$ | async) == true" [type]="dangerType" [header]="'Error'"
     [isShow]="isError$ | async" [timeOut]="0" [message]="error$|async">
 </nx-workspace-alerts>
+<nx-workspace-redirect *ngIf="(isSuccess$ | async) == true" [timeOut]="6000" [isRedirect]="isSuccess$ | async"
+    [redirectTo]="'/login'"></nx-workspace-redirect>
 <main class="register-form">
     <h3 class="text-center">
         Register User

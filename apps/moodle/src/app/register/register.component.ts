@@ -10,7 +10,7 @@ import { RegisterUserStore } from '../store/register-user-store';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
 })
-export class RegisterComponent implements OnInit, OnDestroy {
+export class RegisterComponent implements OnInit {
   isLoading$ = this.registerUserStore.isLoading$;
   isError$ = this.registerUserStore.isError$;
   isSuccess$ = this.registerUserStore.isSuccess$;
@@ -20,7 +20,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
   infoType = AlertsType.ALERT_INFO;
   successType = AlertsType.ALERT_SUCCESS;
   dangerType = AlertsType.ALERT_DANGER;
-  ngDestroy$ = new Subject();
   registerForm = new FormGroup({
     username: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required]),
@@ -28,24 +27,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
     lastname: new FormControl('', [Validators.required]),
     email: new FormControl('', [Validators.required]),
   });
-  constructor(
-    private registerUserStore: RegisterUserStore,
-    private router: Router
-  ) {}
-  ngOnDestroy(): void {
-    this.ngDestroy$.next(true);
-    this.ngDestroy$.complete();
-  }
+  constructor(private registerUserStore: RegisterUserStore) {}
 
-  ngOnInit(): void {
-    this.isSuccess$
-      .pipe(takeUntil(this.ngDestroy$), delay(5000))
-      .subscribe((isSuccess) => {
-        if (isSuccess) {
-          this.router.navigate(['/login']);
-        }
-      });
-  }
+  ngOnInit(): void {}
   onRegister(): void {
     this.registerUserStore.register(this.registerForm.value);
   }
