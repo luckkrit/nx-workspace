@@ -1,19 +1,16 @@
 import { Injectable } from '@angular/core';
-import { ComponentStore, tapResponse } from '@ngrx/component-store';
+import { ComponentStore } from '@ngrx/component-store';
 import {
   catchError,
   concatMap,
   EMPTY,
-  flatMap,
   map,
   mergeMap,
   Observable,
   of,
   switchMap,
-  tap,
 } from 'rxjs';
 import { CourseCategories } from '../services/model/course-categories';
-import { User } from '../services/model/user';
 import { UserDetail } from '../services/model/user-detail';
 import { MoodleProviderService } from '../services/moodle-provider.service';
 
@@ -115,7 +112,6 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
                               };
                             }
                           );
-                          console.log(userCoursesDisplay);
                           this.patchState({
                             isSuccess: true,
                             isError: false,
