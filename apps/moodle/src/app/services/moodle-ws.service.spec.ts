@@ -1,10 +1,10 @@
-import {TestBed} from '@angular/core/testing';
-import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
-import {MoodleWsService} from './moodle-ws.service';
-import {of} from "rxjs";
-import {HttpClient} from "@angular/common/http";
-import {CoreUserCreateUsersResponse} from "./response/core-user-create-users-response";
-import {CoreUserCreateUsersRequest} from "./request/core-user-create-users-request";
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { MoodleWsService } from './moodle-ws.service';
+import { of } from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { CoreUserCreateUsersResponse } from "./response/core-user-create-users-response";
+import { CoreUserCreateUsersRequest } from "./request/core-user-create-users-request";
 
 describe('MoodleWsService', () => {
   let service = jasmine.createSpyObj<MoodleWsService>("MoodleWsService", ["registerUser"]);
@@ -26,7 +26,7 @@ describe('MoodleWsService', () => {
   });
 
   it('should create user correctly', () => {
-    let responseData = [{id: 1, username: "user1"}];
+    let responseData = [{ id: 1, username: "user1" }];
     let createUserDto = {
       username: "user1",
       password: "Tirk12345=",
@@ -49,7 +49,7 @@ describe('MoodleWsService', () => {
 
     // Test HTTP POST Request
     let coreUserCreateUsersRequest = new CoreUserCreateUsersRequest(createUserDto)
-    httpClient.post<CoreUserCreateUsersResponse>(coreUserCreateUsersRequest.url, coreUserCreateUsersRequest.formData, {params: coreUserCreateUsersRequest.queryParams}).subscribe(
+    httpClient.post<CoreUserCreateUsersResponse>(coreUserCreateUsersRequest.url, coreUserCreateUsersRequest.formData, coreUserCreateUsersRequest.queryParams).subscribe(
       response => {
         expect(response.length).toEqual(1)
         expect(response[0].id).toEqual(1)

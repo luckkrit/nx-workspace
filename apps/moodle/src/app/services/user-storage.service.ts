@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { User } from './model/user';
 import { LocalStorageRefService } from './local-storage-ref.service';
 
@@ -34,6 +34,16 @@ export class UserStorageService {
     } else {
       this._userStorage$.error('User not found');
     }
+  }
+
+  public getToken(): Observable<string> {
+    return this._userStorage$.pipe(map(({ token }) => {
+      if (token) {
+        return token;
+      } else {
+        throw new Error('User not found')
+      }
+    }))
   }
 
   public saveUser(user: Partial<User>) {

@@ -20,6 +20,8 @@ import { CourseCategories } from './model/course-categories';
 import { GetCourseFieldType } from './model/get-course-by-field-dto';
 import { CourseWarning } from './model/course-warning';
 import { SelfEnrolWarning } from './model/self-enrol-warning';
+import { UserCourseDto } from './model/user-course-dto';
+import { UserCourse } from './model/user-course';
 
 @Injectable({
   providedIn: 'root',
@@ -28,19 +30,15 @@ export class MoodleProviderService {
   constructor(
     private userStorageService: UserStorageService,
     private moodleWsService: MoodleWsService
-  ) {}
+  ) { }
 
   getUser(): Observable<Partial<User>> {
     this.userStorageService.loadUser();
     return this.userStorageService.userStorage$;
   }
 
-  getToken(): Observable<string | undefined> {
-    return this.getUser().pipe(
-      map((user) => {
-        return user.token;
-      })
-    );
+  getToken(): Observable<string> {
+    return this.userStorageService.getToken();
   }
 
   saveUser(user: Partial<User>) {
@@ -88,8 +86,8 @@ export class MoodleProviderService {
         password,
       })
       .pipe(
-        concatMap((response) => {
-          this.saveToken(username, response.token);
+        concatMap(({ token }) => {
+          this.saveToken(username, token);
           return of(true);
         })
       );
@@ -97,16 +95,20 @@ export class MoodleProviderService {
 
   getUserDetail(token: string): Observable<UserDetail> {
     return this.moodleWsService.getUserDetail(token).pipe(
-      tap((userDetail) => {
+      tap(({ userid, username, firstname, lastname }) => {
         this.userStorageService.saveUser({
-          id: userDetail.userid,
-          username: userDetail.username,
-          firstname: userDetail.firstname,
-          lastname: userDetail.lastname,
+          id: userid,
+          username: username,
+          firstname: firstname,
+          lastname: lastname,
           token,
         });
       })
     );
+  }
+
+  getUserCourse(userCourseDto: UserCourseDto): Observable<UserCourse[]> {
+    return this.moodleWsService.getUserCourse(userCourseDto);
   }
 
   getCourseCategories(token: string): Observable<Array<CourseCategories>> {

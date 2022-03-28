@@ -18,19 +18,22 @@ import { CoreCourseGetCoursesByFieldResponse } from './response/core-course-get-
 import { SelfEnrolCourseDto } from './model/self-enrol-course-dto';
 import { EnrolSelfEnrolUserResponse } from './response/enrol-self-enrol-user-response';
 import { EnrolSelfEnrolUserRequest } from './request/enrol-self-enrol-user-request';
+import { CoreEnrolGetUsersCoursesResponse } from './response/core-enrol-get-users-courses';
+import { CoreEnrolGetUsersCoursesRequest } from './request/core-enrol-get-users-courses-request';
+import { UserCourseDto } from './model/user-course-dto';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MoodleWsService {
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) { }
 
   login(userLoginDto: UserLoginDto): Observable<LoginResponse> {
     let loginRequest = new LoginRequest(userLoginDto);
     return this.httpClient.post<LoginResponse>(
       loginRequest.url,
       loginRequest.formData,
-      { params: loginRequest.queryParams }
+      loginRequest.queryParams
     );
   }
 
@@ -41,7 +44,7 @@ export class MoodleWsService {
     return this.httpClient.post<CoreUserCreateUsersResponse>(
       registerRequest.url,
       registerRequest.formData,
-      { params: registerRequest.queryParams }
+      registerRequest.queryParams
     );
   }
 
@@ -50,8 +53,13 @@ export class MoodleWsService {
     return this.httpClient.post<CoreWebserviceGetSiteInfoResponse>(
       getUserDetailRequest.url,
       getUserDetailRequest.formData,
-      { params: getUserDetailRequest.queryParams }
+      getUserDetailRequest.queryParams
     );
+  }
+
+  getUserCourse(userCourseDto: UserCourseDto): Observable<CoreEnrolGetUsersCoursesResponse> {
+    let getUserCoursesRequest = new CoreEnrolGetUsersCoursesRequest(userCourseDto);
+    return this.httpClient.post<CoreEnrolGetUsersCoursesResponse>(getUserCoursesRequest.url, getUserCoursesRequest.formData, getUserCoursesRequest.queryParams)
   }
 
   getCourseCategories(
@@ -61,7 +69,7 @@ export class MoodleWsService {
     return this.httpClient.post<CoreCourseGetCategoriesResponse>(
       getCourseCategories.url,
       getCourseCategories.formData,
-      { params: getCourseCategories.queryParams }
+      getCourseCategories.queryParams
     );
   }
 
@@ -74,7 +82,7 @@ export class MoodleWsService {
     return this.httpClient.post<CoreCourseGetCoursesByFieldResponse>(
       getCourseByFieldRequest.url,
       getCourseByFieldRequest.formData,
-      { params: getCourseByFieldRequest.queryParams }
+      getCourseByFieldRequest.queryParams
     );
   }
 
@@ -85,7 +93,7 @@ export class MoodleWsService {
     return this.httpClient.post<EnrolSelfEnrolUserResponse>(
       selfEnrolRequest.url,
       selfEnrolRequest.formData,
-      { params: selfEnrolRequest.queryParams }
+      selfEnrolRequest.queryParams
     );
   }
 }
