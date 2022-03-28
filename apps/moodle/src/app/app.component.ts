@@ -3,6 +3,7 @@ import { AlertsStore } from './store/alerts-store';
 import { LoginUserStore } from './store/login-user-store';
 import { RedirectStore } from './store/redirect-store';
 import { RegisterUserStore } from './store/register-user-store';
+import { UserCourseStore } from './store/user-course-store';
 import { UserDetailStore } from './store/user-detail-store';
 
 @Component({
@@ -15,6 +16,7 @@ import { UserDetailStore } from './store/user-detail-store';
     RegisterUserStore,
     RedirectStore,
     UserDetailStore,
+    UserCourseStore,
   ],
 })
 export class AppComponent implements OnInit {

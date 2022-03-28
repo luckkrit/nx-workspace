@@ -37,13 +37,16 @@ export class UserStorageService {
   }
 
   public getToken(): Observable<string> {
-    return this._userStorage$.pipe(map(({ token }) => {
-      if (token) {
-        return token;
-      } else {
-        throw new Error('User not found')
-      }
-    }))
+    this.loadUser();
+    return this._userStorage$.pipe(
+      map(({ token }) => {
+        if (token) {
+          return token;
+        } else {
+          throw new Error('User not found');
+        }
+      })
+    );
   }
 
   public saveUser(user: Partial<User>) {

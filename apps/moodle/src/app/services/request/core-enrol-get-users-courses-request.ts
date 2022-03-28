@@ -10,7 +10,7 @@ export class CoreEnrolGetUsersCoursesRequest extends BaseRequest {
         super();
         this.url += environment.apiPath;
         this.appendQueryParams({
-            [MoodleWsQueryParameters.WS_FUNCTION]: [MoodleWsFunctions.CORE_ENROL_GET_USERS_COURSE],
+            [MoodleWsQueryParameters.WS_FUNCTION]: [MoodleWsFunctions.CORE_ENROL_GET_USERS_COURSES],
             [MoodleWsQueryParameters.WS_TOKEN]: token,
         })
         this.appendFormData(MoodleWsFormDataParamters.WS_USERID, userId);
