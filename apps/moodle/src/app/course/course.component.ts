@@ -35,8 +35,8 @@ export class CourseComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('init');
     const categoryId = this.route.snapshot.paramMap.get('categoryId');
+    this.courseStore.getCourse(Number(categoryId), 0);
   }
   isAvailable(course: Course): boolean {
     if (course.enrollmentmethods.findIndex((e) => e == 'self') > -1) {

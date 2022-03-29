@@ -52,7 +52,6 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
     userId: number,
     returnUserCount: number
   ) => {
-    console.log('get user course');
     return this.moodleProviderService
       .getUserCourse({ token, userId, returnUserCount })
       .pipe(
@@ -78,16 +77,12 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
         isSuccess: false,
         courses: [],
       });
-      console.log('get user course display');
       return this.getToken().pipe(
         concatMap((token) => {
-          console.log('before get course categories');
           return this.getCourseCategories(token).pipe(
             concatMap((categories) => {
-              console.log('before get user id');
               return this.getUserId(token).pipe(
                 concatMap((id) => {
-                  console.log('before get user course');
                   return this.getUserCourse(token, id, returnUserCount).pipe(
                     map((userCourses) => {
                       const userCoursesDisplay = userCourses.map(
@@ -132,7 +127,6 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
   private readonly getCourseCategories = (
     token: string
   ): Observable<CourseCategories[]> => {
-    console.log('get course categories');
     return this.moodleProviderService.getCourseCategories(token).pipe(
       catchError((error) => {
         this.patchState({
@@ -147,7 +141,6 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
     );
   };
   private readonly getToken = (): Observable<string> => {
-    console.log('user-course-store get token');
     return this.moodleProviderService.getToken().pipe(
       map((token) => {
         return token;
@@ -165,7 +158,6 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
     );
   };
   private readonly getUserId = (token: string): Observable<number> => {
-    console.log('user course store getuserid');
     return this.moodleProviderService.getUser().pipe(
       concatMap(({ id }) => {
         if (id) {
@@ -201,7 +193,6 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
     );
   };
   private readonly getUserDetail = (token: string): Observable<UserDetail> => {
-    console.log('user course store get user detail');
     return this.moodleProviderService.getUserDetail(token).pipe(
       catchError((error: string | Error) => {
         this.patchState({

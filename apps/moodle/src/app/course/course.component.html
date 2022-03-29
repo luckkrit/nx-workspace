@@ -35,11 +35,14 @@
                         <td>{{course.displayname}}</td>
                         <td>
                             <ng-container *ngIf="isAvailable(course); else not_enrol">
-                                <button class="btn btn-danger" (click)="onEnrolment(course)"
-                                    [disabled]="false">Enrol</button>
+                                <button *ngIf="!course.isEnroll; else has_enrol" class="btn btn-danger"
+                                    (click)="onEnrolment(course)">Enrol</button>
                             </ng-container>
                             <ng-template #not_enrol>
                                 <p>Not available</p>
+                            </ng-template>
+                            <ng-template #has_enrol>
+                                <p>Enroll</p>
                             </ng-template>
                         </td>
                     </tr>

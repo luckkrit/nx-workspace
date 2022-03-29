@@ -33,12 +33,10 @@ export class MoodleProviderService {
   ) {}
 
   getUser(): Observable<Partial<User>> {
-    this.userStorageService.loadUser();
     return this.userStorageService.userStorage$;
   }
 
   getToken(): Observable<string> {
-    this.userStorageService.loadUser();
     return this.userStorageService.getToken();
   }
 

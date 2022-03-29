@@ -21,15 +21,18 @@ export class UserStorageService {
   private _userStorage$ = new BehaviorSubject<Partial<User>>(this._initialUser);
   public userStorage$ = this._userStorage$.asObservable();
   private _localStorage: Storage;
-
+  private isLoad = false;
   constructor(private _localStorageRefService: LocalStorageRefService) {
     this._localStorage = this._localStorageRefService.localStorage;
+    if (!this.isLoad) {
+      this.isLoad = true;
+      this.loadUser();
+    }
   }
 
   public loadUser() {
     let data = this._localStorage.getItem(UserStorageKeys.USER_KEY);
     if (data != null) {
-      console.log('load');
       const user = JSON.parse(data);
       this._userStorage$.next(user);
     } else {
@@ -38,7 +41,6 @@ export class UserStorageService {
   }
 
   public getToken(): Observable<string> {
-    console.log('get token');
     return this._userStorage$.pipe(
       map(({ token }) => {
         if (token) {
