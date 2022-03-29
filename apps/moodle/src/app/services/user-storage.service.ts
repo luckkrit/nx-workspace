@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable, of } from 'rxjs';
 import { User } from './model/user';
 import { LocalStorageRefService } from './local-storage-ref.service';
 
@@ -29,6 +29,7 @@ export class UserStorageService {
   public loadUser() {
     let data = this._localStorage.getItem(UserStorageKeys.USER_KEY);
     if (data != null) {
+      console.log('load');
       const user = JSON.parse(data);
       this._userStorage$.next(user);
     } else {
@@ -37,7 +38,7 @@ export class UserStorageService {
   }
 
   public getToken(): Observable<string> {
-    this.loadUser();
+    console.log('get token');
     return this._userStorage$.pipe(
       map(({ token }) => {
         if (token) {

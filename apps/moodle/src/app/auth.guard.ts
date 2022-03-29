@@ -6,7 +6,7 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { catchError, concatMap, EMPTY, map, Observable, of } from 'rxjs';
+import { catchError, concatMap, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { MoodleProviderService } from './services/moodle-provider.service';
 
 @Injectable({
@@ -26,12 +26,11 @@ export class AuthGuard implements CanActivate {
     | boolean
     | UrlTree {
     return this.moodleProviderService.getToken().pipe(
-      concatMap((token) => {
+      map((token) => {
         if (typeof token == 'undefined' || token == '') {
           this.router.navigate(['/login']);
-          return EMPTY;
         }
-        return of(typeof token != 'undefined' && token.length > 0);
+        return typeof token != 'undefined' && token.length > 0;
       }),
       catchError((error) => {
         this.router.navigate(['/login']);

@@ -12,6 +12,7 @@ import {
   tap,
 } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { toErrorString } from '../util/error-converter';
 
 export interface LoginUserState {
   isSuccess: boolean;
@@ -23,12 +24,11 @@ export interface LoginUserState {
 
 @Injectable()
 export class LoginUserStore extends ComponentStore<LoginUserState> {
-  readonly isSuccess$ = this.select((state) => state.isSuccess);
-  readonly isLoading$ = this.select((state) => state.isLoading);
-  readonly isError$ = this.select((state) => state.isError);
-  readonly error$ = this.select((state) => state.error);
-  readonly status$ = this.select((state) => state);
-  readonly isRedirect$ = this.select((state) => state.isRedirect);
+  readonly isSuccess$ = this.select(({ isSuccess }) => isSuccess);
+  readonly isLoading$ = this.select(({ isLoading }) => isLoading);
+  readonly isError$ = this.select(({ isError }) => isError);
+  readonly error$ = this.select(({ error }) => error);
+  readonly isRedirect$ = this.select(({ isRedirect }) => isRedirect);
 
   constructor(private moodleProviderService: MoodleProviderService) {
     super({
@@ -63,11 +63,11 @@ export class LoginUserStore extends ComponentStore<LoginUserState> {
                     isRedirect: false,
                   });
                 },
-                (error: Error) => {
+                (error: string | Error) => {
                   this.patchState({
                     isLoading: false,
                     isError: true,
-                    error: error.message,
+                    error: toErrorString(error),
                     isSuccess: false,
                     isRedirect: false,
                   });

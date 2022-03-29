@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component';
 import { AuthGuard } from './auth.guard';
+import { CourseCategoryComponent } from './course-category/course-category.component';
+import { CourseComponent } from './course/course.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { UserCourseComponent } from './user-course/user-course.component';
@@ -29,6 +31,16 @@ const routes: Routes = [
   {
     path: 'user-course',
     component: UserCourseComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'course-category',
+    component: CourseCategoryComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'course/:categoryId',
+    component: CourseComponent,
     canActivate: [AuthGuard],
   },
 ];

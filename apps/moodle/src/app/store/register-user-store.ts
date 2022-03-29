@@ -14,6 +14,7 @@ import {
   tap,
 } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { toErrorString } from '../util/error-converter';
 
 export interface RegisterUserState {
   isSuccess: boolean;
@@ -25,11 +26,10 @@ export interface RegisterUserState {
 
 @Injectable()
 export class RegisterUserStore extends ComponentStore<RegisterUserState> {
-  readonly isSuccess$ = this.select((state) => state.isSuccess);
-  readonly isLoading$ = this.select((state) => state.isLoading);
-  readonly isError$ = this.select((state) => state.isError);
-  readonly error$ = this.select((state) => state.error);
-  readonly status$ = this.select((state) => state);
+  readonly isSuccess$ = this.select(({ isSuccess }) => isSuccess);
+  readonly isLoading$ = this.select(({ isLoading }) => isLoading);
+  readonly isError$ = this.select(({ isError }) => isError);
+  readonly error$ = this.select(({ error }) => error);
 
   constructor(private moodleProviderService: MoodleProviderService) {
     super({
@@ -70,11 +70,11 @@ export class RegisterUserStore extends ComponentStore<RegisterUserState> {
                       error: '',
                     });
                   },
-                  (error: Error) => {
+                  (error: Error | string) => {
                     this.patchState({
                       isLoading: false,
                       isSuccess: false,
-                      error: error.message,
+                      error: toErrorString(error),
                       isError: true,
                     });
                   }

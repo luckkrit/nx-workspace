@@ -1,3 +1,21 @@
+<nx-workspace-alerts *ngIf="(isLoading$ | async) == true" [timeOut]="3000" [type]="infoType" [header]="'Info'"
+    [isShow]="isLoading$ | async" [message]="loadingText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isSuccess$ | async) == true" [timeOut]="3000" [type]="successType" [header]="'Success'"
+    [isShow]="isSuccess$ | async" [message]="successText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isError$ | async) == true" [type]="dangerType" [header]="'Error'"
+    [isShow]="isError$ | async" [timeOut]="0" [message]="error$|async">
+</nx-workspace-alerts>
+<ng-container *ngIf="(isWarning$ | async) == true">
+    <nx-workspace-alerts *ngFor="let warning of warnings$ | async" [type]="warningType" [header]="'Warning'"
+        [isShow]="isWarning$ | async" [timeOut]="0"
+        [message]="'('+warning.itemid+') '+warning.item+'('+warning.warningcode+') '+warning.message">
+    </nx-workspace-alerts>
+</ng-container>
+<nx-workspace-confirm-modal (onModalConfirm)="onModalConfirm()">
+
+</nx-workspace-confirm-modal>
 <div class="card border-light mb-3">
     <div class="card-header">Course </div>
     <div class="card-body">
@@ -6,16 +24,24 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col">Category</th>
                         <th scope="col">Name</th>
                         <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td scope="row">1</td>
-                        <td>Test Course</td>
-                        <td><button class="btn btn-danger">Enrol</button></td>
+                    <tr *ngFor="let course of courses$ | async">
+                        <td scope="row">{{course.categoryname}}</td>
+                        <td>{{course.displayname}}</td>
+                        <td>
+                            <ng-container *ngIf="isAvailable(course); else not_enrol">
+                                <button class="btn btn-danger" (click)="onEnrolment(course)"
+                                    [disabled]="false">Enrol</button>
+                            </ng-container>
+                            <ng-template #not_enrol>
+                                <p>Not available</p>
+                            </ng-template>
+                        </td>
                     </tr>
                 </tbody>
             </table>

@@ -1,3 +1,12 @@
+<nx-workspace-alerts *ngIf="(isLoading$ | async) == true" [timeOut]="3000" [type]="infoType" [header]="'Info'"
+    [isShow]="isLoading$ | async" [message]="loadingText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isSuccess$ | async) == true" [timeOut]="3000" [type]="successType" [header]="'Success'"
+    [isShow]="isSuccess$ | async" [message]="successText">
+</nx-workspace-alerts>
+<nx-workspace-alerts *ngIf="(isError$ | async) == true" [type]="dangerType" [header]="'Error'"
+    [isShow]="isError$ | async" [timeOut]="0" [message]="error$|async">
+</nx-workspace-alerts>
 <div class="card border-light mb-3">
     <div class="card-header">Course Category </div>
     <div class="card-body">
@@ -6,16 +15,14 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
                         <th scope="col">Name</th>
                         <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td scope="row">1</td>
-                        <td>Miscellanous</td>
-                        <td><button class="btn btn-primary">View</button></td>
+                    <tr *ngFor="let category of categories$ | async">
+                        <td scope="row">{{category.name}}</td>
+                        <td><a class="btn btn-primary" [routerLink]="['/course', category.id]">View</a></td>
                     </tr>
                 </tbody>
             </table>

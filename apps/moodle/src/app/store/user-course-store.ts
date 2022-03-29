@@ -13,8 +13,10 @@ import {
 import { CourseCategories } from '../services/model/course-categories';
 import { UserDetail } from '../services/model/user-detail';
 import { MoodleProviderService } from '../services/moodle-provider.service';
+import { toErrorString } from '../util/error-converter';
 
 export interface UserCourseDisplay {
+  id: number;
   courseDisplayname: string;
   categoryName: string;
   courseStartdate: Date;
@@ -31,11 +33,11 @@ export interface UserCourseState {
 }
 @Injectable()
 export class UserCourseStore extends ComponentStore<UserCourseState> {
-  courses$ = this.select((state) => state.courses);
-  isLoading$ = this.select((state) => state.isLoading);
-  isError$ = this.select((state) => state.isError);
-  isSuccess$ = this.select((state) => state.isSuccess);
-  error$ = this.select((state) => state.error);
+  courses$ = this.select(({ courses }) => courses);
+  isLoading$ = this.select(({ isLoading }) => isLoading);
+  isError$ = this.select(({ isError }) => isError);
+  isSuccess$ = this.select(({ isSuccess }) => isSuccess);
+  error$ = this.select(({ error }) => error);
   constructor(private moodleProviderService: MoodleProviderService) {
     super({
       isError: false,
@@ -49,14 +51,15 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
     token: string,
     userId: number,
     returnUserCount: number
-  ) =>
-    this.moodleProviderService
+  ) => {
+    console.log('get user course');
+    return this.moodleProviderService
       .getUserCourse({ token, userId, returnUserCount })
       .pipe(
-        catchError((error) => {
+        catchError((error: string | Error) => {
           this.patchState({
             isError: true,
-            error,
+            error: toErrorString(error),
             isLoading: false,
             isSuccess: false,
             courses: [],
@@ -64,9 +67,10 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
           return EMPTY;
         })
       );
+  };
 
-  readonly getUserCourseDisplay = this.effect(
-    (returnUserCount$: Observable<number>) => {
+  readonly getUserCourseDisplay = (returnUserCount: number) =>
+    this.effect(() => {
       this.patchState({
         isError: false,
         error: '',
@@ -74,69 +78,62 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
         isSuccess: false,
         courses: [],
       });
-      return returnUserCount$.pipe(
-        switchMap((returnUserCount) =>
-          this.getToken().pipe(
-            concatMap((token) => {
-              return this.getCourseCategories(token).pipe(
-                concatMap((categories) => {
-                  return this.getUserId(token).pipe(
-                    concatMap((id) => {
-                      return this.getUserCourse(
-                        token,
-                        id,
-                        returnUserCount
-                      ).pipe(
-                        map((userCourses) => {
-                          const userCoursesDisplay = userCourses.map(
-                            (userCourse) => {
-                              const category = categories.find(
-                                (category) => category.id == userCourse.category
-                              );
-                              const categoryName =
-                                typeof category != 'undefined'
-                                  ? category.name
-                                  : '';
-                              return {
-                                courseDisplayname: userCourse.displayname,
-                                categoryName: categoryName,
-                                courseStartdate: new Date(
-                                  userCourse.startdate * 1000
-                                ),
-                                courseEnddate: new Date(
-                                  userCourse.enddate * 1000
-                                ),
-                                courseLastaccess: userCourse.lastaccess
-                                  ? new Date(userCourse.lastaccess * 1000)
-                                  : null,
-                              };
-                            }
+      console.log('get user course display');
+      return this.getToken().pipe(
+        concatMap((token) => {
+          console.log('before get course categories');
+          return this.getCourseCategories(token).pipe(
+            concatMap((categories) => {
+              console.log('before get user id');
+              return this.getUserId(token).pipe(
+                concatMap((id) => {
+                  console.log('before get user course');
+                  return this.getUserCourse(token, id, returnUserCount).pipe(
+                    map((userCourses) => {
+                      const userCoursesDisplay = userCourses.map(
+                        (userCourse) => {
+                          const category = categories.find(
+                            (category) => category.id == userCourse.category
                           );
-                          this.patchState({
-                            isSuccess: true,
-                            isError: false,
-                            isLoading: false,
-                            error: '',
-                            courses: userCoursesDisplay,
-                          });
-                          return EMPTY;
-                        })
+                          const categoryName =
+                            typeof category != 'undefined' ? category.name : '';
+                          return {
+                            id: userCourse.id,
+                            courseDisplayname: userCourse.displayname,
+                            categoryName: categoryName,
+                            courseStartdate: new Date(
+                              userCourse.startdate * 1000
+                            ),
+                            courseEnddate: new Date(userCourse.enddate * 1000),
+                            courseLastaccess: userCourse.lastaccess
+                              ? new Date(userCourse.lastaccess * 1000)
+                              : null,
+                          };
+                        }
                       );
+                      this.patchState({
+                        isSuccess: true,
+                        isError: false,
+                        isLoading: false,
+                        error: '',
+                        courses: userCoursesDisplay,
+                      });
+                      return EMPTY;
                     })
                   );
                 })
               );
             })
-          )
-        )
+          );
+        })
       );
-    }
-  );
+    });
 
   private readonly getCourseCategories = (
     token: string
-  ): Observable<CourseCategories[]> =>
-    this.moodleProviderService.getCourseCategories(token).pipe(
+  ): Observable<CourseCategories[]> => {
+    console.log('get course categories');
+    return this.moodleProviderService.getCourseCategories(token).pipe(
       catchError((error) => {
         this.patchState({
           isError: true,
@@ -148,16 +145,17 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
         return EMPTY;
       })
     );
-
-  private readonly getToken = (): Observable<string> =>
-    this.moodleProviderService.getToken().pipe(
+  };
+  private readonly getToken = (): Observable<string> => {
+    console.log('user-course-store get token');
+    return this.moodleProviderService.getToken().pipe(
       map((token) => {
         return token;
       }),
-      catchError((error) => {
+      catchError((error: string | Error) => {
         this.patchState({
           isError: true,
-          error,
+          error: toErrorString(error),
           isLoading: false,
           isSuccess: false,
           courses: [],
@@ -165,10 +163,11 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
         return EMPTY;
       })
     );
-
-  private readonly getUserId = (token: string): Observable<number> =>
-    this.moodleProviderService.getUser().pipe(
-      mergeMap(({ id }) => {
+  };
+  private readonly getUserId = (token: string): Observable<number> => {
+    console.log('user course store getuserid');
+    return this.moodleProviderService.getUser().pipe(
+      concatMap(({ id }) => {
         if (id) {
           return of(id);
         } else {
@@ -176,10 +175,10 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
             map((userDetail) => {
               return userDetail.userid;
             }),
-            catchError((error) => {
+            catchError((error: string | Error) => {
               this.patchState({
                 isError: true,
-                error,
+                error: toErrorString(error),
                 isLoading: false,
                 isSuccess: false,
                 courses: [],
@@ -189,10 +188,10 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
           );
         }
       }),
-      catchError((error) => {
+      catchError((error: string | Error) => {
         this.patchState({
           isError: true,
-          error,
+          error: toErrorString(error),
           isLoading: false,
           isSuccess: false,
           courses: [],
@@ -200,13 +199,14 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
         return EMPTY;
       })
     );
-
-  private readonly getUserDetail = (token: string): Observable<UserDetail> =>
-    this.moodleProviderService.getUserDetail(token).pipe(
-      catchError((error) => {
+  };
+  private readonly getUserDetail = (token: string): Observable<UserDetail> => {
+    console.log('user course store get user detail');
+    return this.moodleProviderService.getUserDetail(token).pipe(
+      catchError((error: string | Error) => {
         this.patchState({
           isError: true,
-          error,
+          error: toErrorString(error),
           isLoading: false,
           isSuccess: false,
           courses: [],
@@ -214,4 +214,5 @@ export class UserCourseStore extends ComponentStore<UserCourseState> {
         return EMPTY;
       })
     );
+  };
 }

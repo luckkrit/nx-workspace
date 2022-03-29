@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Course } from '../services/model/course';
 import { ComponentStore, tapResponse } from '@ngrx/component-store';
-import { EMPTY, mergeMap, Observable, tap } from 'rxjs';
+import { catchError, concatMap, EMPTY, Observable, of, switchMap } from 'rxjs';
 import { MoodleProviderService } from '../services/moodle-provider.service';
-import { User } from '../services/model/user';
 import { Warning } from '../services/model/warning';
+import { toErrorString } from '../util/error-converter';
+import { UserCourseDisplay } from './user-course-store';
+
+export interface CourseWithEnrol extends Course {
+  isEnroll: boolean;
+}
 
 export interface CourseState {
   warnings: Warning[];
@@ -18,14 +23,13 @@ export interface CourseState {
 
 @Injectable()
 export class CourseStore extends ComponentStore<CourseState> {
-  readonly courses$: Observable<Course[]> = this.select(
-    (state) => state.courses
-  );
-  readonly isLoading$: Observable<boolean> = this.select(
-    (state) => state.isLoading
-  );
-  readonly error$: Observable<string> = this.select((state) => state.error);
-
+  readonly courses$ = this.select(({ courses }) => courses);
+  readonly isLoading$ = this.select(({ isLoading }) => isLoading);
+  readonly error$ = this.select(({ error }) => error);
+  readonly warnings$ = this.select(({ warnings }) => warnings);
+  readonly isError$ = this.select(({ isError }) => isError);
+  readonly isSuccess$ = this.select(({ isSuccess }) => isSuccess);
+  readonly isWarning$ = this.select(({ isWarning }) => isWarning);
   constructor(private moodleProviderService: MoodleProviderService) {
     super({
       courses: [],
@@ -38,18 +42,27 @@ export class CourseStore extends ComponentStore<CourseState> {
     });
   }
 
-  getUser(): Observable<Partial<User>> {
-    return this.moodleProviderService.getUser();
+  private getToken(): Observable<string> {
+    console.log('course store get token');
+    return this.moodleProviderService.getToken().pipe(
+      catchError((error: string | Error) => {
+        this.patchState({
+          isLoading: false,
+          isError: true,
+          isSuccess: false,
+          isWarning: false,
+          error: toErrorString(error),
+          courses: [],
+          warnings: [],
+        });
+
+        return EMPTY;
+      })
+    );
   }
 
-  getToken(): Observable<string | undefined> {
-    return this.moodleProviderService.getToken();
-  }
-
-  readonly getCourse = this.effect((categoryId: number) => {
-    if (typeof categoryId == 'undefined') {
-      return EMPTY;
-    } else {
+  readonly getCourse = (categoryId: number) =>
+    this.effect(() => {
       this.patchState({
         isLoading: true,
         isError: false,
@@ -60,73 +73,47 @@ export class CourseStore extends ComponentStore<CourseState> {
         warnings: [],
       });
       return this.getToken().pipe(
-        tapResponse(
-          (token) => {
-            if (token) {
-              return this.moodleProviderService
-                .getCourseByField(token, categoryId)
-                .pipe(
-                  tapResponse(
-                    (courseWarning) => {
-                      if (courseWarning.warnings.length > 0) {
-                        this.patchState({
-                          courses: courseWarning.courses,
-                          warnings: courseWarning.warnings,
-                          isLoading: false,
-                          isSuccess: true,
-                          isWarning: true,
-                          isError: false,
-                          error: '',
-                        });
-                      } else {
-                        this.patchState({
-                          courses: courseWarning.courses,
-                          warnings: courseWarning.warnings,
-                          isLoading: false,
-                          isSuccess: true,
-                          isWarning: false,
-                          isError: false,
-                          error: '',
-                        });
-                      }
-                    },
-                    (error: string) =>
-                      this.patchState({
-                        isLoading: false,
-                        isSuccess: false,
-                        isError: true,
-                        isWarning: false,
-                        error,
-                        courses: [],
-                        warnings: [],
-                      })
-                  )
-                );
-            } else {
-              this.patchState({
-                isLoading: false,
-                isError: true,
-                isSuccess: false,
-                isWarning: false,
-                error: 'User not found, please login',
-                courses: [],
-                warnings: [],
-              });
-              return EMPTY;
-            }
-          },
-          (error: string) =>
-            this.patchState({
-              isLoading: false,
-              isError: true,
-              isSuccess: false,
-              isWarning: false,
-              error,
-              courses: [],
-              warnings: [],
-            })
-        )
+        switchMap((token) => {
+          return this.moodleProviderService
+            .getCourseByField(token, categoryId)
+            .pipe(
+              tapResponse(
+                ({ warnings, courses }) => {
+                  if (warnings.length > 0) {
+                    this.patchState({
+                      courses: courses,
+                      warnings: warnings,
+                      isLoading: false,
+                      isSuccess: false,
+                      isWarning: true,
+                      isError: false,
+                      error: '',
+                    });
+                  } else {
+                    this.patchState({
+                      courses: courses,
+                      warnings: warnings,
+                      isLoading: false,
+                      isSuccess: true,
+                      isWarning: false,
+                      isError: false,
+                      error: '',
+                    });
+                  }
+                },
+                (error: string | Error) =>
+                  this.patchState({
+                    isLoading: false,
+                    isSuccess: false,
+                    isError: true,
+                    isWarning: false,
+                    error: toErrorString(error),
+                    courses: [],
+                    warnings: [],
+                  })
+              )
+            );
+        })
       );
-    }
-  });
+    });
 }

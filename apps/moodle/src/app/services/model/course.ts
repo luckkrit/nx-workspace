@@ -1,3 +1,7 @@
+import { ContactUser } from './contact-user';
+import { OverviewFile } from './overview-file';
+import { SummaryFile } from './summary-file';
+
 export interface Course {
   id: number;
   fullname: string;
@@ -8,10 +12,10 @@ export interface Course {
   sortorder: number;
   summary: string;
   summaryformat: number;
-  summaryfiles: any[];
-  overviewfiles: any[];
+  summaryfiles: SummaryFile[];
+  overviewfiles: OverviewFile[];
   showactivitydates: boolean;
   showcompletionconditions: boolean;
-  contacts: any[];
+  contacts: ContactUser[];
   enrollmentmethods: string[];
 }

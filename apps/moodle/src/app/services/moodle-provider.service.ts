@@ -30,7 +30,7 @@ export class MoodleProviderService {
   constructor(
     private userStorageService: UserStorageService,
     private moodleWsService: MoodleWsService
-  ) { }
+  ) {}
 
   getUser(): Observable<Partial<User>> {
     this.userStorageService.loadUser();
@@ -38,6 +38,7 @@ export class MoodleProviderService {
   }
 
   getToken(): Observable<string> {
+    this.userStorageService.loadUser();
     return this.userStorageService.getToken();
   }
 

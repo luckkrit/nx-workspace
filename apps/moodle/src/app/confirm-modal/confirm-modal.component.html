@@ -1,0 +1,19 @@
+<div class="modal fade" [ngClass]="{'show': (isShow$ | async)}" id="confirmModal" tabindex="-1"
+    [ngStyle]="{'display': (isShow$ | async) == true ? 'block': 'none'}" aria-labelledby="confirmModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">{{title$ | async}}</h5>
+                <button type="button" class="btn-close" (click)="onClose()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{body$|async}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="onCancel()">{{cancelText$|async}}</button>
+                <button type="button" class="btn btn-primary" (click)="onConfirm()">{{confirmText$|async}}</button>
+            </div>
+        </div>
+    </div>
+</div>

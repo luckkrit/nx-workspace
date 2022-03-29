@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertsStore } from './store/alerts-store';
+import { ConfirmModalStore } from './store/confirm-modal-store';
+import { CourseCategoryStore } from './store/course-category-store';
+import { CourseStore } from './store/course-store';
 import { LoginUserStore } from './store/login-user-store';
 import { RedirectStore } from './store/redirect-store';
 import { RegisterUserStore } from './store/register-user-store';
@@ -17,6 +20,9 @@ import { UserDetailStore } from './store/user-detail-store';
     RedirectStore,
     UserDetailStore,
     UserCourseStore,
+    CourseCategoryStore,
+    CourseStore,
+    ConfirmModalStore,
   ],
 })
 export class AppComponent implements OnInit {
