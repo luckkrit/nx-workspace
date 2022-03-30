@@ -22,7 +22,8 @@
                 <tbody>
                     <tr *ngFor="let category of categories$ | async">
                         <td scope="row">{{category.name}}</td>
-                        <td><a class="btn btn-primary" [routerLink]="['/course', category.id]">View</a></td>
+                        <td><a class="btn btn-primary" [routerLink]="['/course-category', category.id]"
+                                (click)="viewCourse(category)">View</a></td>
                     </tr>
                 </tbody>
             </table>

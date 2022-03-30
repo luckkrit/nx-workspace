@@ -22,6 +22,8 @@ import { CourseWarning } from './model/course-warning';
 import { SelfEnrolWarning } from './model/self-enrol-warning';
 import { UserCourseDto } from './model/user-course-dto';
 import { UserCourse } from './model/user-course';
+import { SharedCategoryStorageService } from './shared-category-storage.service';
+import { Course } from './model/course';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +31,8 @@ import { UserCourse } from './model/user-course';
 export class MoodleProviderService {
   constructor(
     private userStorageService: UserStorageService,
-    private moodleWsService: MoodleWsService
+    private moodleWsService: MoodleWsService,
+    private sharedCategoryStorageService: SharedCategoryStorageService
   ) {}
 
   getUser(): Observable<Partial<User>> {
@@ -91,6 +94,9 @@ export class MoodleProviderService {
         })
       );
   }
+  logout() {
+    this.userStorageService.clearUser();
+  }
 
   getUserDetail(token: string): Observable<UserDetail> {
     return this.moodleWsService.getUserDetail(token).pipe(
@@ -129,5 +135,13 @@ export class MoodleProviderService {
     courseId: number
   ): Observable<SelfEnrolWarning> {
     return this.moodleWsService.selfEnrolCourse({ token, courseId });
+  }
+
+  setSharedCategory(courseCategories: CourseCategories) {
+    this.sharedCategoryStorageService.setCategory(courseCategories);
+  }
+
+  getSharedCategory(): Observable<CourseCategories> {
+    return this.sharedCategoryStorageService.courseCategoryStorage$;
   }
 }

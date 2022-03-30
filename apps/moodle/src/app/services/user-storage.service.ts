@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable, of } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, tap } from 'rxjs';
 import { User } from './model/user';
 import { LocalStorageRefService } from './local-storage-ref.service';
 
@@ -37,6 +37,11 @@ export class UserStorageService {
       this._userStorage$.next(user);
     } else {
       this._userStorage$.error('User not found');
+      this._userStorage$.complete();
+      this._userStorage$ = new BehaviorSubject<Partial<User>>(
+        this._initialUser
+      );
+      this.userStorage$ = this._userStorage$.asObservable();
     }
   }
 

@@ -26,4 +26,7 @@ export class CourseCategoryComponent implements OnInit {
   ngOnInit(): void {
     this.courseCategoryStore.getCategory();
   }
+  viewCourse(courseCategories: CourseCategories) {
+    this.courseCategoryStore.setSharedCategory(courseCategories);
+  }
 }

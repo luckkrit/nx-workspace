@@ -4,6 +4,7 @@ import { delay, of, Subject, takeUntil } from 'rxjs';
 import { LoginUserStore } from '../store/login-user-store';
 import { AlertsType } from '../store/alerts-store';
 import { Router } from '@angular/router';
+import { NavbarStore } from '../store/navbar-store';
 
 @Component({
   selector: 'nx-workspace-login',
@@ -25,13 +26,17 @@ export class LoginComponent implements OnInit {
     username: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required]),
   });
-  constructor(private loginUserStore: LoginUserStore) {}
+  constructor(
+    private loginUserStore: LoginUserStore,
+    private navbarStore: NavbarStore
+  ) {}
   ngOnInit(): void {}
   onSubmit(): void {
     this.loginUserStore.login(this.loginForm.value);
   }
   onAlertClose(isClose: boolean): void {
     if (isClose) {
+      this.navbarStore.checkLogin();
       this.loginUserStore.redirect(isClose);
     }
   }

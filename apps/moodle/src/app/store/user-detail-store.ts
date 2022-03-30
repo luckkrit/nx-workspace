@@ -92,6 +92,7 @@ export class UserDetailStore extends ComponentStore<UserDetailState> {
         catchError((error: string | Error) => {
           return timer(3000).pipe(
             concatMap(() => {
+              console.log('detail ', error);
               this.patchState({
                 isError: true,
                 error: toErrorString(error),

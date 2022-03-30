@@ -19,9 +19,27 @@ import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
 import { ClickOutsideDirective } from './util/click-outside.directive';
 
 @NgModule({
-  declarations: [AppComponent, LoginComponent, UserDetailComponent, RegisterComponent, CourseCategoryComponent, CourseComponent, NavbarComponent, AlertsComponent, RedirectComponent, UserCourseComponent, ConfirmModalComponent, ClickOutsideDirective],
-  imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, AppRoutingModule],
+  declarations: [
+    AppComponent,
+    LoginComponent,
+    UserDetailComponent,
+    RegisterComponent,
+    CourseCategoryComponent,
+    CourseComponent,
+    NavbarComponent,
+    AlertsComponent,
+    RedirectComponent,
+    UserCourseComponent,
+    ConfirmModalComponent,
+    ClickOutsideDirective,
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    ReactiveFormsModule,
+    AppRoutingModule,
+  ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

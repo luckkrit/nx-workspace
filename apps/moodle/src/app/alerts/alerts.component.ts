@@ -14,6 +14,7 @@ import { AlertsStore, AlertsType } from '../store/alerts-store';
   selector: 'nx-workspace-alerts',
   templateUrl: './alerts.component.html',
   styleUrls: ['./alerts.component.css'],
+  providers: [AlertsStore],
 })
 export class AlertsComponent implements OnInit {
   @Input()

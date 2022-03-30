@@ -12,6 +12,7 @@ import { UserCourseStore } from '../store/user-course-store';
   selector: 'nx-workspace-course',
   templateUrl: './course.component.html',
   styleUrls: ['./course.component.css'],
+  providers: [],
 })
 export class CourseComponent implements OnInit {
   courses$ = this.courseStore.courses$;
@@ -21,6 +22,7 @@ export class CourseComponent implements OnInit {
   isError$ = this.courseStore.isError$;
   isSuccess$ = this.courseStore.isSuccess$;
   isWarning$ = this.courseStore.isWarning$;
+  category$ = this.courseStore.category$;
   loadingText = 'Loading';
   successText = 'Loading Success';
   infoType = AlertsType.ALERT_INFO;
@@ -28,6 +30,7 @@ export class CourseComponent implements OnInit {
   dangerType = AlertsType.ALERT_DANGER;
   warningType = AlertsType.ALERT_WARNING;
   private course: Course | null = null;
+  private categoryId: number = -1;
   constructor(
     private courseStore: CourseStore,
     private route: ActivatedRoute,
@@ -36,24 +39,21 @@ export class CourseComponent implements OnInit {
 
   ngOnInit(): void {
     const categoryId = this.route.snapshot.paramMap.get('categoryId');
+    this.categoryId = Number(categoryId);
     this.courseStore.getCourse(Number(categoryId), 0);
-  }
-  isAvailable(course: Course): boolean {
-    if (course.enrollmentmethods.findIndex((e) => e == 'self') > -1) {
-      return true;
-    }
-    return false;
   }
   onEnrolment(course: Course): void {
     this.course = course;
     this.confirmModalStore.showModal({
       title: 'Confirm',
-      body: 'Are you sure enrol ' + course.displayname,
+      body: 'Are you sure enroll ' + course.displayname,
       cancelText: 'Cancel',
       confirmText: 'Confirm',
     });
   }
   onModalConfirm(): void {
-    console.log(this.course);
+    if (this.course) {
+      this.courseStore.enrolCourse(this.course?.id, this.categoryId, 0);
+    }
   }
 }

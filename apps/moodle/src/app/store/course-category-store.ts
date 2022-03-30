@@ -103,4 +103,7 @@ export class CourseCategoryStore extends ComponentStore<CourseCategoryState> {
         })
       );
     });
+
+  readonly setSharedCategory = (courseCategories: CourseCategories) =>
+    this.moodleProviderService.setSharedCategory(courseCategories);
 }

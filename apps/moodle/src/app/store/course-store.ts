@@ -19,6 +19,7 @@ import { CourseCategories } from '../services/model/course-categories';
 
 export interface CourseWithEnrol extends Course {
   isEnroll: boolean;
+  isAvailable: boolean;
 }
 
 export interface CourseState {
@@ -28,11 +29,13 @@ export interface CourseState {
   isSuccess: boolean;
   isError: boolean;
   isWarning: boolean;
+  isEnrol: boolean;
   error: string;
 }
 
 @Injectable()
 export class CourseStore extends ComponentStore<CourseState> {
+  readonly category$ = this.moodleProviderService.getSharedCategory();
   readonly courses$ = this.select(({ courses }) => courses);
   readonly isLoading$ = this.select(({ isLoading }) => isLoading);
   readonly error$ = this.select(({ error }) => error);
@@ -40,6 +43,7 @@ export class CourseStore extends ComponentStore<CourseState> {
   readonly isError$ = this.select(({ isError }) => isError);
   readonly isSuccess$ = this.select(({ isSuccess }) => isSuccess);
   readonly isWarning$ = this.select(({ isWarning }) => isWarning);
+  private allCourses: CourseWithEnrol[] = [];
   constructor(private moodleProviderService: MoodleProviderService) {
     super({
       courses: [],
@@ -49,6 +53,7 @@ export class CourseStore extends ComponentStore<CourseState> {
       isError: false,
       isSuccess: false,
       isWarning: false,
+      isEnrol: false,
     });
   }
 
@@ -60,6 +65,7 @@ export class CourseStore extends ComponentStore<CourseState> {
           isError: true,
           isSuccess: false,
           isWarning: false,
+          isEnrol: false,
           error: toErrorString(error),
           courses: [],
           warnings: [],
@@ -77,6 +83,7 @@ export class CourseStore extends ComponentStore<CourseState> {
         isError: false,
         isSuccess: false,
         isWarning: false,
+        isEnrol: false,
         error: '',
         courses: [],
         warnings: [],
@@ -96,18 +103,23 @@ export class CourseStore extends ComponentStore<CourseState> {
                           const userCourse = userCourses.find(
                             (u) => u.id == course.id
                           );
+                          const isAvailable =
+                            course.enrollmentmethods.indexOf('self') > -1;
                           if (userCourse) {
                             courseWithEnrols.push({
                               ...course,
                               isEnroll: true,
+                              isAvailable,
                             });
                           } else {
                             courseWithEnrols.push({
                               ...course,
                               isEnroll: false,
+                              isAvailable,
                             });
                           }
                         });
+                        this.allCourses = courseWithEnrols;
                         if (warnings.length > 0) {
                           this.patchState({
                             courses: courseWithEnrols,
@@ -116,6 +128,7 @@ export class CourseStore extends ComponentStore<CourseState> {
                             isSuccess: false,
                             isWarning: true,
                             isError: false,
+                            isEnrol: false,
                             error: '',
                           });
                         } else {
@@ -126,6 +139,7 @@ export class CourseStore extends ComponentStore<CourseState> {
                             isSuccess: true,
                             isWarning: false,
                             isError: false,
+                            isEnrol: false,
                             error: '',
                           });
                         }
@@ -139,22 +153,6 @@ export class CourseStore extends ComponentStore<CourseState> {
         })
       );
     });
-  private readonly getCourseCategories = (
-    token: string
-  ): Observable<CourseCategories[]> => {
-    return this.moodleProviderService.getCourseCategories(token).pipe(
-      catchError((error) => {
-        this.patchState({
-          isError: true,
-          error,
-          isLoading: false,
-          isSuccess: false,
-          courses: [],
-        });
-        return EMPTY;
-      })
-    );
-  };
   private readonly getUserId = (token: string): Observable<number> => {
     return this.moodleProviderService.getUser().pipe(
       concatMap(({ id }) => {
@@ -171,7 +169,10 @@ export class CourseStore extends ComponentStore<CourseState> {
                 error: toErrorString(error),
                 isLoading: false,
                 isSuccess: false,
+                isEnrol: false,
                 courses: [],
+                isWarning: false,
+                warnings: [],
               });
               return EMPTY;
             })
@@ -184,7 +185,10 @@ export class CourseStore extends ComponentStore<CourseState> {
           error: toErrorString(error),
           isLoading: false,
           isSuccess: false,
+          isEnrol: false,
           courses: [],
+          isWarning: false,
+          warnings: [],
         });
         return EMPTY;
       })
@@ -198,7 +202,10 @@ export class CourseStore extends ComponentStore<CourseState> {
           error: toErrorString(error),
           isLoading: false,
           isSuccess: false,
+          isEnrol: false,
           courses: [],
+          isWarning: false,
+          warnings: [],
         });
         return EMPTY;
       })
@@ -218,10 +225,90 @@ export class CourseStore extends ComponentStore<CourseState> {
             error: toErrorString(error),
             isLoading: false,
             isSuccess: false,
+            isEnrol: false,
             courses: [],
+            isWarning: false,
+            warnings: [],
           });
           return EMPTY;
         })
       );
   };
+
+  readonly enrolCourse = (
+    courseId: number,
+    categoryId: number,
+    returnUserCount: number
+  ) =>
+    this.effect(() => {
+      return this.getToken().pipe(
+        switchMap((token) =>
+          this.moodleProviderService.selfEnrolCourse(token, courseId).pipe(
+            switchMap(({ status, warnings }) => {
+              if (status) {
+                this.allCourses.forEach((course) => {
+                  if (course.id == courseId) {
+                    course.isEnroll = true;
+                  }
+                });
+                if (warnings.length > 0) {
+                  this.patchState({
+                    isError: false,
+                    error: '',
+                    isLoading: false,
+                    isSuccess: true,
+                    isEnrol: true,
+                    courses: this.allCourses,
+                    isWarning: true,
+                    warnings: warnings,
+                  });
+                } else {
+                  this.patchState({
+                    isError: false,
+                    error: '',
+                    isLoading: false,
+                    isSuccess: true,
+                    isEnrol: true,
+                    courses: this.allCourses,
+                    isWarning: false,
+                    warnings: warnings,
+                  });
+                }
+                this.allCourses.forEach((course) => {
+                  if (course.id == courseId) {
+                    course.isEnroll = true;
+                  }
+                });
+                return EMPTY;
+              } else {
+                if (warnings.length > 0) {
+                  this.patchState({
+                    isError: true,
+                    error: 'Cannot enrol in this course',
+                    isLoading: false,
+                    isSuccess: false,
+                    isEnrol: false,
+                    courses: [],
+                    isWarning: true,
+                    warnings: warnings,
+                  });
+                } else {
+                  this.patchState({
+                    isError: true,
+                    error: 'Cannot enrol in this course',
+                    isLoading: false,
+                    isSuccess: false,
+                    isEnrol: false,
+                    courses: [],
+                    isWarning: false,
+                    warnings: [],
+                  });
+                }
+                return EMPTY;
+              }
+            })
+          )
+        )
+      );
+    });
 }
